@@ -220,7 +220,7 @@ fn demo() -> Snapshot {
                 ),
                 dev(
                     "n-phone",
-                    "Nothing Phone (1)",
+                    "nothing-phone-1",
                     "android",
                     Presence::Offline {
                         last_seen: Some(NOW - 8 * DAY - 3 * HOUR),

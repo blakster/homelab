@@ -51,8 +51,13 @@ pub fn parse_status(json: &str) -> Tailnet {
     let s: StatusJson = match serde_json::from_str(json) {
         Ok(s) => s,
         Err(e) => {
+            // Not JSON: usually the CLI telling us something ("The Tailscale GUI failed to start…").
+            let said = json.lines().map(str::trim).find(|l| !l.is_empty());
             return Tailnet::Error {
-                reason: format!("unreadable tailscale status: {e}"),
+                reason: match said {
+                    Some(line) if !line.starts_with('{') => format!("tailscale said: {line}"),
+                    _ => format!("unreadable tailscale status: {e}"),
+                },
             };
         }
     };
@@ -85,10 +90,18 @@ fn device(p: PeerJson, is_self: bool) -> Device {
             last_seen: p.last_seen.as_deref().and_then(parse_last_seen),
         }
     };
+    let dns_name = p.dns_name.trim_end_matches('.').to_string();
+    // HostName isn't unique (two machines both called `vansh-box`); the MagicDNS
+    // label is, and it's what `tailscale status` prints. Self keeps its pretty name.
+    let label = dns_name.split('.').next().filter(|l| !l.is_empty());
+    let name = match label {
+        Some(l) if !is_self => l.to_string(),
+        _ => p.host_name,
+    };
     Device {
         id: p.id,
-        name: p.host_name,
-        dns_name: p.dns_name.trim_end_matches('.').to_string(),
+        name,
+        dns_name,
         os: p.os,
         is_self,
         presence,
@@ -143,7 +156,13 @@ pub async fn ping(bin: &str, host: &str) -> Latency {
 
 /// Ok(stdout) on success; Err(reason or partial stdout) otherwise.
 async fn run(bin: &str, args: &[&str], limit: Duration) -> Result<String, String> {
-    let child = Command::new(bin).args(args).kill_on_drop(true).output();
+    let mut cmd = Command::new(bin);
+    // The macOS app-bundle binary only acts as a CLI when TERM is set; under
+    // launchd it isn't, and the binary tries to launch the GUI instead.
+    if std::env::var_os("TERM").is_none() {
+        cmd.env("TERM", "dumb");
+    }
+    let child = cmd.args(args).kill_on_drop(true).output();
     match tokio::time::timeout(limit, child).await {
         Err(_) => Err(format!("`{bin} {}` timed out", args[0])),
         Ok(Err(e)) => Err(format!("can't run {bin}: {e}")),
@@ -184,6 +203,29 @@ mod tests {
     #[test]
     fn garbage_is_an_error_not_a_panic() {
         assert!(matches!(parse_status("not json"), Tailnet::Error { .. }));
+    }
+
+    #[test]
+    fn peers_are_named_by_their_unique_magicdns_label() {
+        let json = r#"{"BackendState":"Running","Peer":{
+            "a":{"ID":"a","HostName":"vansh-box","DNSName":"vansh-box.t.ts.net.","OS":"linux","Online":true},
+            "b":{"ID":"b","HostName":"vansh-box","DNSName":"vansh-box-1.t.ts.net.","OS":"linux","Online":true}}}"#;
+        let Tailnet::Ready { devices, .. } = parse_status(json) else {
+            panic!()
+        };
+        let names: Vec<&str> = devices.iter().map(|d| d.name.as_str()).collect();
+        assert_eq!(names, ["vansh-box", "vansh-box-1"]);
+    }
+
+    #[test]
+    fn non_json_output_is_quoted_in_the_reason() {
+        let t = parse_status("The Tailscale GUI failed to start: CLIError 3.\n");
+        assert_eq!(
+            t,
+            Tailnet::Error {
+                reason: "tailscale said: The Tailscale GUI failed to start: CLIError 3.".into()
+            }
+        );
     }
 
     #[test]
