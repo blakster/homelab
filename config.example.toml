@@ -1,0 +1,35 @@
+# homelab config — copy to ~/.config/homelab/config.toml
+# No secrets live here.
+
+[tailscale]
+# The standalone macOS app keeps its CLI inside the bundle.
+bin = "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
+
+[ssh]
+listen = "127.0.0.1:2222"                              # loopback; exposed with `tailscale serve --tcp 2222`
+authorized_keys = "~/.config/homelab/authorized_keys"  # only these keys get the dashboard
+host_key = "~/.config/homelab/host_ed25519"            # generated on first run, 0600
+
+[[service]]
+id = "orbstack"
+name = "OrbStack Docker"
+check = { kind = "docker-daemon" }
+
+[[service]]
+id = "pulse-db"
+name = "Pulse Postgres"
+check = { kind = "docker", container = "pulse-dev-db" }
+depends_on = ["orbstack"]
+
+[[service]]
+id = "pulse"
+name = "Pulse"
+url = "https://vanshs-macbook-air-5.tail1234.ts.net"
+check = { kind = "http", url = "http://127.0.0.1:3001/healthz" }
+depends_on = ["pulse-db"]
+
+[[service]]
+id = "air-health"
+name = "Air Health"
+check = { kind = "http", url = "http://127.0.0.1:4870/healthz" }
+enabled = false   # not running yet; shows as "off", never as a fault
