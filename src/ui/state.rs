@@ -1,7 +1,7 @@
 //! Per-viewer UI state. Each local TUI and each SSH session owns one; it is
 //! never shared, so two people can browse different panes and themes.
 
-use crate::ui::theme::Mode;
+use crate::ui::theme::{Mode, TerminalBg, TerminalEnv};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Pane {
@@ -34,6 +34,10 @@ pub enum Action {
 #[derive(Clone, Debug, PartialEq)]
 pub struct UiState {
     pub mode: Mode,
+    /// Detected terminal polarity used when cycling back to `Mode::Auto`.
+    pub detected_bg: TerminalBg,
+    /// Terminal background RGB reported by OSC 11 (if available).
+    pub terminal_bg_rgb: Option<(u8, u8, u8)>,
     pub plain: bool,
     pub pane: Pane,
     /// Selected row per pane: peers (excluding self), services.
@@ -47,6 +51,8 @@ impl Default for UiState {
     fn default() -> Self {
         Self {
             mode: Mode::Dark,
+            detected_bg: TerminalBg::Dark,
+            terminal_bg_rgb: None,
             plain: false,
             pane: Pane::Machines,
             sel_peer: 0,
@@ -58,6 +64,20 @@ impl Default for UiState {
 }
 
 impl UiState {
+    pub fn from_terminal() -> Self {
+        Self::from_terminal_env(crate::ui::theme::detect_terminal())
+    }
+
+    pub fn from_terminal_env(env: TerminalEnv) -> Self {
+        Self {
+            mode: Mode::Auto(env.bg),
+            detected_bg: env.bg,
+            terminal_bg_rgb: env.bg_rgb,
+            plain: env.plain,
+            ..Self::default()
+        }
+    }
+
     /// `peers` and `services` are the current row counts, used to clamp.
     pub fn apply(&mut self, a: Action, peers: usize, services: usize) {
         let (sel, len) = match self.pane {
@@ -66,7 +86,7 @@ impl UiState {
         };
         match a {
             Action::Quit => self.quit = true,
-            Action::Theme => self.mode = if self.mode == Mode::Dark { Mode::Light } else { Mode::Dark },
+            Action::Theme => self.mode = self.mode.next(self.detected_bg),
             Action::Plain => self.plain = !self.plain,
             Action::Help => {
                 self.overlay = if self.overlay == Overlay::Help {
@@ -186,10 +206,29 @@ mod tests {
 
     #[test]
     fn theme_toggles() {
-        let mut ui = UiState::default();
+        let mut ui = UiState::from_terminal_env(TerminalEnv {
+            bg: TerminalBg::Dark,
+            bg_rgb: None,
+            plain: false,
+        });
+        assert_eq!(ui.mode, Mode::Auto(TerminalBg::Dark));
         ui.apply(Action::Theme, 0, 0);
         assert_eq!(ui.mode, Mode::Light);
         ui.apply(Action::Theme, 0, 0);
         assert_eq!(ui.mode, Mode::Dark);
+        ui.apply(Action::Theme, 0, 0);
+        assert_eq!(ui.mode, Mode::Auto(TerminalBg::Dark));
+
+        let mut light_term = UiState::from_terminal_env(TerminalEnv {
+            bg: TerminalBg::Light,
+            bg_rgb: None,
+            plain: false,
+        });
+        light_term.apply(Action::Theme, 0, 0);
+        assert_eq!(light_term.mode, Mode::Dark);
+        light_term.apply(Action::Theme, 0, 0);
+        assert_eq!(light_term.mode, Mode::Light);
+        light_term.apply(Action::Theme, 0, 0);
+        assert_eq!(light_term.mode, Mode::Auto(TerminalBg::Light));
     }
 }
