@@ -111,13 +111,12 @@ async fn exec_is_refused_with_a_reason() {
     let (h, _) = connect(port, &me).await;
     let mut ch = h.channel_open_session().await.unwrap();
     ch.exec(true, "cat /etc/passwd").await.unwrap();
-    let (mut stderr, mut status, mut failed) = (String::new(), None, false);
+    let (mut stderr, mut status) = (String::new(), None);
     let _ = timeout(Duration::from_secs(5), async {
         while let Some(msg) = ch.wait().await {
             match msg {
                 ChannelMsg::ExtendedData { data, ext: 1 } => stderr.push_str(&String::from_utf8_lossy(&data)),
                 ChannelMsg::Data { data } => panic!("exec produced stdout: {:?}", String::from_utf8_lossy(&data)),
-                ChannelMsg::Failure => failed = true,
                 ChannelMsg::ExitStatus { exit_status } => status = Some(exit_status),
                 ChannelMsg::Close => break,
                 _ => {}
@@ -125,7 +124,6 @@ async fn exec_is_refused_with_a_reason() {
         }
     })
     .await;
-    assert!(failed, "exec request gets channel failure");
     assert_eq!(status, Some(1));
     assert!(stderr.contains("only shows the dashboard"), "{stderr}");
 }
@@ -171,4 +169,17 @@ async fn sessions_are_independent() {
     cb.data(&b"j"[..]).await.unwrap();
     let b_screen = read_until(&mut cb, "plain mode").await;
     assert!(!b_screen.contains("plain mode"), "b never saw a's help overlay");
+}
+
+#[tokio::test]
+async fn zero_sized_pty_falls_back_to_80x24() {
+    // OpenSSH sends 0×0 for `ssh -tt` when its stdin is a pipe.
+    let me = key();
+    let port = start("zero", &me).await;
+    let (h, _) = connect(port, &me).await;
+    let mut ch = h.channel_open_session().await.unwrap();
+    ch.request_pty(false, "xterm", 0, 0, 0, 0, &[]).await.unwrap();
+    ch.request_shell(false).await.unwrap();
+    let screen = read_until(&mut ch, "Services").await;
+    assert!(screen.contains("Services"), "{} bytes", screen.len());
 }

@@ -137,6 +137,17 @@ impl Conn {
 }
 
 const NO_EXEC: &str = "homelab: this server only shows the dashboard; shell, exec and forwarding are disabled.\r\n";
+const NO_PTY: &str = "homelab: needs a terminal; connect with `ssh -t`.\r\n";
+
+/// Accept a request, explain on stderr why nothing will run, exit 1, close.
+fn refuse(session: &mut Session, channel: ChannelId, why: &'static str) -> Result<()> {
+    session.channel_success(channel)?;
+    session.extended_data(channel, 1, bytes::Bytes::from_static(why.as_bytes()))?;
+    session.exit_status_request(channel, 1)?;
+    session.eof(channel)?;
+    session.close(channel)?;
+    Ok(())
+}
 
 impl Handler for Conn {
     type Error = anyhow::Error;
@@ -178,19 +189,19 @@ impl Handler for Conn {
         _: &[(Pty, u32)],
         session: &mut Session,
     ) -> Result<()> {
-        self.size = Some((cols.min(u16::MAX as u32) as u16, rows.min(u16::MAX as u32) as u16));
+        // OpenSSH sends 0×0 when its own stdin isn't a terminal (`ssh -tt` in a pipe).
+        self.size = Some(if cols == 0 || rows == 0 {
+            (80, 24)
+        } else {
+            (cols.min(u16::MAX as u32) as u16, rows.min(u16::MAX as u32) as u16)
+        });
         session.channel_success(channel)?;
         Ok(())
     }
 
     async fn shell_request(&mut self, channel: ChannelId, session: &mut Session) -> Result<()> {
         let Some((w, h)) = self.size else {
-            session.data(
-                channel,
-                bytes::Bytes::from_static(b"homelab: needs a terminal; connect with `ssh -t`.\r\n"),
-            )?;
-            session.channel_failure(channel)?;
-            session.close(channel)?;
+            refuse(session, channel, NO_PTY)?;
             return Ok(());
         };
         session.channel_success(channel)?;
@@ -201,11 +212,8 @@ impl Handler for Conn {
     }
 
     async fn exec_request(&mut self, channel: ChannelId, _: &[u8], session: &mut Session) -> Result<()> {
-        session.extended_data(channel, 1, bytes::Bytes::from_static(NO_EXEC.as_bytes()))?;
-        session.channel_failure(channel)?;
-        session.exit_status_request(channel, 1)?;
-        session.close(channel)?;
-        Ok(())
+        // Accept the request so the client prints our reason, then exit 1 without running anything.
+        refuse(session, channel, NO_EXEC)
     }
 
     async fn subsystem_request(&mut self, channel: ChannelId, _: &str, session: &mut Session) -> Result<()> {
