@@ -17,8 +17,9 @@ TS=/Applications/Tailscale.app/Contents/MacOS/Tailscale
 command -v tailscale >/dev/null 2>&1 && TS=$(command -v tailscale)
 
 cd "$(dirname "$0")/.."
+# Prefer rustup's toolchain over any other rustc on PATH (e.g. Homebrew's).
+export PATH="$HOME/.cargo/bin:$PATH"
 CARGO=cargo
-[ -x "$HOME/.cargo/bin/cargo" ] && CARGO="$HOME/.cargo/bin/cargo"
 
 echo "→ building release binary"
 "$CARGO" build --release --locked --no-default-features
