@@ -1,4 +1,4 @@
-//! homelab: a dithered terminal dashboard for a Mac and its tailnet.
+//! homelab: a terminal dashboard for a Mac and its tailnet.
 //!
 //! collectors → [`hub`] (single writer) → `watch<Arc<Snapshot>>` → views
 //! ([`local`] TUI, [`ssh`] sessions, `snapshot --json`). Every view calls the

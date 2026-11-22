@@ -6,7 +6,7 @@ use clap::{Parser, Subcommand};
 use homelab::config::Config;
 use homelab::{hub, local, ssh, ui};
 
-/// A dithered terminal dashboard for your Mac and its tailnet.
+/// A terminal dashboard for your Mac and its tailnet.
 #[derive(Parser)]
 #[command(version, about)]
 struct Cli {

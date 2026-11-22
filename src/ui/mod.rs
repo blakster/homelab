@@ -1,3 +1,4 @@
+pub mod braille;
 pub mod format;
 pub mod render;
 pub mod state;

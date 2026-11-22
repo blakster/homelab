@@ -5,17 +5,17 @@ expression: text
  homelab                  │ ▲ tailscale: can't run /Applications/Tailscale.app/Contents/MacOS/Tailscale: No such file … 
                           │ Machines ──────────────────────────────────────────────────────────── tailscale unavailable 
  THIS MAC                 │ ┌ TAILNET ────────────────────────┐                ╭ hub ─────────────────────────────────╮ 
- Vansh’s MacBook Air… 31% │ │ can't run                       │                │ ▀▀▀▀▀▀▀▀  Vansh’s MacBook Air (5)    │ 
-                          │ │ /Applications/Tailscale.app/Con │                │ ▀▀▀▀▀▀▀▀  Apple M1 · 8 cores · 16 GB │ 
- TAILNET              0/0 │ │ tents/MacOS/Tailscale: No such  │                │ ▀▀▀▀▀▀▀▀  up 2d 4h · load 3.61 3.44… │ 
-                          │ │ file or directory               │                │ ▀▀▀▀▀▀▀▀  memory pressure normal     │ 
+ Vansh’s MacBook Air… 31% │ │ can't run                       │                │           Vansh’s MacBook Air (5)    │ 
+                          │ │ /Applications/Tailscale.app/Con │                │           Apple M1 · 8 cores · 16 GB │ 
+ TAILNET              0/0 │ │ tents/MacOS/Tailscale: No such  │                │    VM     up 2d 4h · load 3.61 3.44… │ 
+                          │ │ file or directory               │                │           memory pressure normal     │ 
  SERVICES             0/3 │ │                                 │                │                                      │ 
  ● OrbStack Docker   down │ │                                 │                │                                      │ 
- ● Pulse Postgres blocked │ │                                 │                │                         ▄▄▄▄▄▄▄▄▄▄▄▄ │ 
- ● Pulse          blocked │ │                                 │                │   ▄▄ ▄▄▄▄▄▄▄▄▄▄▄▀▀▀▀▀▀▀▀▀▀▀▀ ▄▀▄▀▄ ▀ │ 
- ● Air Health         off │ │                                 │                │ ▀▀▀▀▀▀▀▀▄▀▀▀▀ ▄ ▀▀▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
-                          │ │                                 │                │ CPU  ▀▀ ▄▀    31%  MEM  ▀▀▀▀▀    70% │ 
-                          │ │                                 │                │ DISK ▀▀▀▀▀▀▀▄▀  ▄  54% 124 of 228 GB │ 
+ ● Pulse Postgres blocked │ │                                 │                │   ⢀⣀⣤⣠⣤⣄⣤⣀⡀⣀                  ⣀⣠⣄⣤⣤⣠ │ 
+ ● Pulse          blocked │ │                                 │                │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣠⣄⡀⣀⢀⡀⣀⣀⣠⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ ● Air Health         off │ │                                 │                │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+                          │ │                                 │                │ CPU  ━━━━━━━  31%  MEM  ━━━━━━━  70% │ 
+                          │ │                                 │                │ DISK ━━━━━━━━━━━━  54% 124 of 228 GB │ 
                           │ └─────────────────────────────────┘                ╰──────────────────────────────────────╯ 
                           │                                                                                             
                           │ Services ───────────────────────────────────────────────────────────────────── 0 up · 1 off 
@@ -25,20 +25,20 @@ expression: text
                           │ ● Air Health             off                         disabled in config                     
                           │                                                                                             
                           │ History ─────────────────────────────────────────────────────────────────────── last 10 min 
-                          │             ▚▚ cpu %  ▚▚ mem %                latency: waiting for pings…                   
+                          │ ● cpu 47%  ● mem 76%                    100%  latency: waiting for pings…                   
                           │                                                                                             
-                          │ 80 ▀  ▀▄▄▀▄▄▀ ▄▀  ▀  ▀  ▀  ▀  ▀  ▀  ▀  ▀  ▀▄                                                
-                          │     ▀▀▄▀▀▀▀ ▀▀▀▀▀▄▀▀▄ ▄▄     ▄▄ ▀▀▄▀▀▀▄▀▀▀▀▀                                                
-                          │    ▄▀▀▀▀▀ ▄▀ ▄▀ ▄▀ ▄▀▀▀▀▀▀▀▀▄▀▀▀▀ ▀▀ ▄▀ ▄  ▄                                                
-                          │ 60 ▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀                                                 
-                          │    ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀                                                
-                          │     ▄▀▄ ▀ ▄▀▄▄▀ ▄▀  ▀ ▄▀ ▄▀ ▄▀ ▄▀ ▄▀▀▄▀ ▄▀ ▀                                                
-                          │ 40 ▀▀ ▀ ▄▀ ▄▀▀▀▀  ▀▄▀▀▄▄▀ ▄▀▄▄▀ ▄▀ ▀▀▀▄▀  ▀▀                                                
-                          │     ▀▀▀▀▄ ▀▀▀▀▄▀▀ ▄▀▀▀▀▄▄▀▀▀▀ ▀▀  ▀▀▀▀  ▀ ▀▀                                                
-                          │    ▄▀▀▀▀▀ ▄▀▀▀▀▀▄▀▀▀▀▀▄▀  ▀▀▀▀▀ ▀▀▀▀▀▀▀ ▄▀▀▀                                                
-                          │ 20 ▀▄▀▀▀▀▀▀▀▄▀▀▀▀▄▀▀▄▀▀▀▄▀▀▀▄▀▀▀▀▀▀▀▄▀▀▀▀▀▀▀                                                
-                          │    ▀▀▀▄▀▀▀▀▀▄▀ ▀▀▀▄▀▄▀▄▀▀▀▄▀▀▀▀▀▀▀▄▀▄▀▀▀▀▀▄▀                                                
-                          │    ▀ ▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀▄▀ ▀ ▀   ▀▄▀ ▀▄▀ ▀ ▀                                                
-                          │  0 ▀ ▀ ▀▄▀ ▀ ▀ ▀ ▀ ▀▄▀ ▀ ▀ ▀ ▀ ▀▄▀ ▀ ▀ ▀ ▀ ▀                                                
-                          │    -9m                                                                                      
+                          │                                                                                             
+                          │                                                                                             
+                          │ ┄┄┄⣠⣄⣰⢲⣰⡆⣀⡀⣠⣄⣠⢤⣠⡄┄┄⢀⡀┄┄┄┄┄┄┄┄┄┄┄┄┄┄⢀⡀⢀⣤⢠⡄⣀⡀⣰                                                
+                          │ ⣠⠏⠓⠃⠈⠁⠈⠁⠿⠁⠉⠁⠈⠁⠘⠃⣷⠋⠧⠏⠳⠞⢹⡞⣇⡤⣄⡴⢦⡼⢹⡼⣇⡖⠦⠞⠙⠋⠘⠋⠷⠃⠉⠁                                                
+                          │                         ⠉       ⠉                                                           
+                          │                                                                                             
+                          │ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄⣀⡀┄┄┄┄┄┄⣀⡀┄┄┄┄┄┄⣠⡄┄┄┄┄┄┄⣰                                                
+                          │  ⣾⣿⣿⡄    ⣼⣿⣿⡇    ⣰⣾⣿⣇    ⢠⣾⣿⣧    ⢀⣴⣿⣷     ⣰⣿                                                
+                          │ ⢰⣿⣿⣿⣧   ⢠⣿⣿⣿⣿    ⣿⣿⣿⣿⡀   ⣿⣿⣿⣿⡆   ⣼⣿⣿⣿⣧   ⣸⣿⣿                                                
+                          │ ⣾⣿⣿⣿⣿⣄⡀⢰⣾⣿⣿⣿⣿⣧⡀⢠⣼⣿⣿⣿⣿⣷⣄⢀⣰⣿⣿⣿⣿⣿⣆┄⢠⣿⣿⣿⣿⣿⣧┄⢀⣿⣿⣿                                                
+                          │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿⣿⣿⣿⣼⣿⣿⣿⣿                                                
+                          │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿                                                
+                          │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿                                                
+                          │ -9m ──────────────────────────────────── now                                                
  0 online · 0 offline · up 2d 4h                              t light · p plain · tab pane · ⏎ detail · ? help · q quit

@@ -7,19 +7,19 @@ expression: text
  │ Vansh’s MacBook Air (5)                      │ 
  │ Apple M1 · 8 cores · 16 GB                   │ 
  │                                              │ 
- │ ▀▀▀▀▀▀▀▀▀▄▀▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
- │ CPU  ▀▀▀▄▀  ▄▀    31%  MEM  ▀▀▀▀▀▀▀▀▀    70% │ 
- │ DISK ▀▄▀▄▀▀▀▀▀▀▀▄▀  ▄▀  ▄  54% 124 of 228 GB │ 
+ │ ⣤⣤⣴⣶⣦⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣦⣤⣤⣤⣤⣶⣤⣴⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿ │ 
+ │ CPU  ━━━━━━━━━━━  31%  MEM  ━━━━━━━━━━━  70% │ 
+ │ DISK ━━━━━━━━━━━━━━━━━━━━  54% 124 of 228 GB │ 
  ╰──────────────────────────────────────────────╯ 
  Tailnet ────────────────────────── 3 of 5 online 
- ▀▀▀▀ vanshs-macbook-air-5-rex              11 ms 
- ▀▀▀▀ macOS · direct                              
- ▀▀▀▀ vansh-box-1                          182 ms 
- ▀▀▀▀ linux · via DERP bom                        
- ▀▀▀▀ nothing-phone-1                     offline 
- ▀▀▀▀ android · last seen 8d 3h ago               
- ▀▀▀▀ vansh-box                           offline 
- ▀▀▀▀ linux · last seen 39d ago                   
+  ● vanshs-macbook-air-5-rex                11 ms 
+    macOS · direct                                
+  ● vansh-box-1                            182 ms 
+    linux · via DERP bom                          
+  ○ nothing-phone-1                       offline 
+    android · last seen 8d 3h ago                 
+  ○ vansh-box                             offline 
+    linux · last seen 39d ago                     
  Services ────────────────────────── 3 up · 1 off 
  ● OrbStack Dock… up          4 ms                
  ● Pulse Postgres up         38 ms                

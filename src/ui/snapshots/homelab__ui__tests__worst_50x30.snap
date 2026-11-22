@@ -7,22 +7,22 @@ expression: text
  ╭ hub ─────────────────────────────────────────╮ 
  │ 株式会社サーバー’s Mac Studio — build farm … │ 
  │ Apple M4 Ultra with an unusually long brand… │ 
- │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
- │ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
- │ CPU  ▀▄▀▄▀▀▀▀▀▀▀ 100%  MEM  ▀▄▀▄▀▀▀▀▀▀▀ 100% │ 
- │ DISK ▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀   0% no disk data │ 
+ │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ │ CPU  ━━━━━━━━━━━ 100%  MEM  ━━━━━━━━━━━ 100% │ 
+ │ DISK ━━━━━━━━━━━━━━━━━━━━━   0% no disk data │ 
  ╰──────────────────────────────────────────────╯ 
  Tailnet ────────────────────────── 4 of 7 online 
- ▀▀▀▀ a-really-long-hostname-that-hits-t… 1999 ms 
- ▀▀▀▀ linux · via DERP fra-extra                  
- ▀▀▀▀ 0                                      0 ms 
- ▀▀▀▀ ios · direct                                
- ▀▀▀▀ Ünïcødé 🚀 phone                       – ms 
- ▀▀▀▀ android · online                            
- ▀▀▀▀ never-seen                          offline 
- ▀▀▀▀ windows · never seen                        
- ▀▀▀▀ ancient                             offline 
- ▀▀▀▀ linux · last seen 900d ago                  
+  ● a-really-long-hostname-that-hits-the… 1999 ms 
+    linux · via DERP fra-extra                    
+  ● 0                                        0 ms 
+    ios · direct                                  
+  ● Ünïcødé 🚀 phone                         – ms 
+    android · online                              
+  ○ never-seen                            offline 
+    windows · never seen                          
+  ○ ancient                               offline 
+    linux · last seen 900d ago                    
                                         1–5 of 6  
  Services ────────────────────────── 2 up · 1 off 
  ● OrbStack Dock… down             error sending… 

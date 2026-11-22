@@ -109,7 +109,7 @@ fn plain_mode_uses_no_truecolor() {
         .filter(|c| matches!(c.fg, Color::Rgb(..)) || matches!(c.bg, Color::Rgb(..)))
         .count();
     assert_eq!(rgb, 0);
-    assert!(to_text(&buf).contains('█'), "text bars instead of dither");
+    assert!(to_text(&buf).contains('█'), "text bars instead of thin gauges");
 }
 
 #[test]

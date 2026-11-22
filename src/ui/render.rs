@@ -5,10 +5,6 @@
 //! only for structure, one accent (`signal`) for data, status colours only for
 //! status, 1-cell padding, fixed-width numbers.
 
-use dither_ratatui::dither_core::{self, Cartesian, PixelGrid};
-use dither_ratatui::prelude::*;
-use dither_ratatui::raster::paint;
-use dither_ratatui::{Chart, Meter};
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::{Color, Modifier, Style};
@@ -17,9 +13,10 @@ use ratatui::widgets::{Block, BorderType, Borders, Clear, Paragraph, Widget, Wra
 use unicode_width::UnicodeWidthStr;
 
 use crate::model::*;
+use crate::ui::braille::{self, Trace, blend};
 use crate::ui::format::{ago, dur, fit, gb, latency, pad, pct};
 use crate::ui::state::{Overlay, Pane, UiState};
-use crate::ui::theme::{FAULT_TONE, Mode, Palette, SIGNAL_TONE};
+use crate::ui::theme::{Mode, Palette};
 
 pub const MIN_W: u16 = 30;
 pub const MIN_H: u16 = 8;
@@ -127,7 +124,7 @@ fn split_v(r: Rect, top_h: u16) -> (Rect, Rect) {
     )
 }
 
-/// CPU/memory history and per-peer latency as Dither Kit charts. Only drawn
+/// CPU/memory history and per-peer latency as braille charts. Only drawn
 /// when there's room left after the things that answer "what's down".
 fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Palette) {
     if r.height < HISTORY_MIN || r.width < 40 {
@@ -147,18 +144,29 @@ fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Pa
     let right = Rect::new(body.x + half + 1, body.y, body.width - half - 1, body.height);
     let cpu: Vec<f64> = snap.history.cpu.iter().map(|v| *v as f64).collect();
     let mem: Vec<f64> = snap.history.mem.iter().map(|v| *v as f64).collect();
-    if cpu.len() >= 2 && p.truecolor {
-        let series = [
-            Series::new("cpu %", SIGNAL_TONE, cpu),
-            Series::new("mem %", Tone::Grey, mem).fill(Fill::Hatched),
-        ];
-        let labels = sparse_labels(series[0].values.len(), 2);
-        let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
-        Chart::area(&series).labels(&labels).theme(p.dither).render(left, buf);
-        ink_legend(buf, left, p);
-    } else {
-        spark(buf, left, &cpu, Some(100.0), SIGNAL_TONE, p);
-    }
+    let span = format!("-{}m", (cpu.len().max(1) - 1) * 2 / 60);
+    chart(
+        buf,
+        left,
+        &[
+            Series {
+                name: "mem".into(),
+                color: p.ink3,
+                vals: &mem,
+                fill: false,
+            },
+            Series {
+                name: "cpu".into(),
+                color: p.signal,
+                vals: &cpu,
+                fill: true,
+            },
+        ],
+        Some(100.0),
+        "%",
+        &span,
+        p,
+    );
     let lat: Vec<(&Device, Vec<f64>)> = peers
         .iter()
         .filter(|d| matches!(d.presence, Presence::Online { .. }))
@@ -181,46 +189,77 @@ fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Pa
         );
         return;
     }
-    if p.truecolor {
-        let n = lat.iter().map(|(_, v)| v.len()).min().unwrap_or(0);
-        let tones = [SIGNAL_TONE, Tone::Grey, Tone::Orange];
-        let series: Vec<Series> = lat
-            .iter()
-            .enumerate()
-            .map(|(i, (d, v))| Series::new(fit(&d.name, 18), tones[i], v[v.len() - n..].to_vec()))
-            .collect();
-        let labels = sparse_labels(n, 30);
-        let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
-        Chart::line(&series).labels(&labels).theme(p.dither).render(right, buf);
-        ink_legend(buf, right, p);
-    } else {
-        spark(buf, right, &lat[0].1, None, SIGNAL_TONE, p);
-    }
+    let n = lat.iter().map(|(_, v)| v.len()).min().unwrap_or(0);
+    let colors = [p.signal, p.live, p.relay];
+    let series: Vec<Series> = lat
+        .iter()
+        .enumerate()
+        .map(|(i, (d, v))| Series {
+            name: fit(&d.name, 12),
+            color: colors[i],
+            vals: &v[v.len() - n..],
+            fill: false,
+        })
+        .collect();
+    chart(buf, right, &series, None, " ms", &format!("-{}m", (n.max(1) - 1) / 2), p);
 }
 
-/// dither-ratatui's chart legend ignores the chart theme (always dark ink), so
-/// re-ink the legend's label text from our palette. Swatches keep their tone.
-fn ink_legend(buf: &mut Buffer, r: Rect, p: &Palette) {
-    if r.height <= 3 {
+struct Series<'a> {
+    name: String,
+    color: Color,
+    vals: &'a [f64],
+    fill: bool,
+}
+
+/// A braille chart: a legend row (latest value per series, scale on the
+/// right), the plot, and a time axis. `y_max: None` scales to the data.
+fn chart(buf: &mut Buffer, r: Rect, series: &[Series], y_max: Option<f64>, unit: &str, span: &str, p: &Palette) {
+    if r.height < 3 || r.width < 12 {
         return;
     }
-    for x in r.left()..r.right() {
-        let cell = &mut buf[(x, r.y)];
-        if cell.symbol().chars().all(|c| c.is_alphanumeric() || " %-_.()…".contains(c)) && cell.symbol() != " " {
-            cell.set_fg(p.ink3);
+    let hi = y_max.unwrap_or_else(|| series.iter().flat_map(|s| s.vals.iter().copied()).fold(1.0, f64::max) * 1.15);
+    let mut legend: Vec<Span> = vec![];
+    for s in series.iter().rev() {
+        let last = s.vals.last().copied().unwrap_or(0.0);
+        legend.push(Span::styled("● ", p.text(s.color)));
+        legend.push(Span::styled(format!("{} ", s.name), p.text(p.ink3)));
+        legend.push(Span::styled(format!("{last:.0}{unit}  "), p.text(p.ink)));
+    }
+    let legend = Line::from(legend);
+    buf.set_line(r.x, r.y, &legend, r.width);
+    // The scale only shows when the legend leaves room for it.
+    let scale = format!("{hi:.0}{unit}");
+    let sw = scale.width() as u16;
+    if legend.width() as u16 + sw <= r.width {
+        buf.set_string(r.right() - sw, r.y, &scale, p.text(p.mute));
+    }
+
+    let plot = Rect::new(r.x, r.y + 1, r.width, r.height - 2);
+    // Faint quarter gridlines under the data, btop-style.
+    for q in 1..4u16 {
+        let y = plot.y + plot.height * q / 4;
+        if y < plot.bottom() {
+            for x in plot.left()..plot.right() {
+                buf.set_string(x, y, "┄", p.text(blend(p.wire, p.ground, 0.7)));
+            }
         }
     }
-}
-
-/// x-axis labels for `n` samples taken every `secs`: only the ends are named.
-fn sparse_labels(n: usize, secs: usize) -> Vec<String> {
-    (0..n)
-        .map(|i| match i {
-            0 => format!("-{}m", (n - 1) * secs / 60),
-            _ if i == n - 1 => "now".into(),
-            _ => String::new(),
+    let traces: Vec<Trace> = series
+        .iter()
+        .map(|s| Trace {
+            vals: s.vals,
+            color: s.color,
+            fill: s.fill,
         })
-        .collect()
+        .collect();
+    braille::plot(buf, plot, &traces, hi, p.ground);
+
+    let axis_y = r.bottom() - 1;
+    for x in r.left()..r.right() {
+        buf.set_string(x, axis_y, "─", p.text(p.wire));
+    }
+    buf.set_string(r.x, axis_y, format!("{span} "), p.text(p.mute));
+    buf.set_string(r.right() - 4, axis_y, " now", p.text(p.mute));
 }
 
 fn stacked_body(buf: &mut Buffer, body: Rect, snap: &Snapshot, peers: &[&Device], ui: &UiState, p: &Palette, medium: bool) {
@@ -344,7 +383,7 @@ fn status_bar(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], ui:
     let next_theme = if ui.mode == Mode::Dark { "light" } else { "dark" };
     let keys = [
         format!("t {next_theme}"),
-        if ui.plain { "p dither".into() } else { "p plain".into() },
+        if ui.plain { "p color".into() } else { "p plain".into() },
         "tab pane".into(),
         "⏎ detail".into(),
         "? help".into(),
@@ -506,7 +545,7 @@ fn hub_card(buf: &mut Buffer, r: Rect, snap: &Snapshot, p: &Palette, compact: bo
     let mut y = inner.y;
 
     let text_x = if !compact && inner.height >= 8 && inner.width >= 34 {
-        avatar(buf, Rect::new(inner.x, inner.y, 8, 4), &h.name, p, false);
+        monogram(buf, Rect::new(inner.x, inner.y, 8, 4), &h.name, p);
         inner.x + 10
     } else {
         inner.x
@@ -548,7 +587,7 @@ fn hub_card(buf: &mut Buffer, r: Rect, snap: &Snapshot, p: &Palette, compact: bo
     let spark_h = inner.bottom().saturating_sub(y + meter_rows);
     if spark_h > 0 {
         let vals: Vec<f64> = snap.history.cpu.iter().map(|v| *v as f64).collect();
-        spark(buf, Rect::new(inner.x, y, inner.width, spark_h), &vals, Some(100.0), SIGNAL_TONE, p);
+        spark(buf, Rect::new(inner.x, y, inner.width, spark_h), &vals, Some(100.0), p.signal, p);
         y += spark_h;
     }
     if y < inner.bottom() {
@@ -583,11 +622,18 @@ fn meter_row(buf: &mut Buffer, r: Rect, label: &str, ratio: f32, p: &Palette) {
     buf.set_string(r.x, r.y, format!("{label:<4}"), p.text(p.mute));
     let v = pct(ratio * 100.0);
     let bar = Rect::new(r.x + 5, r.y, r.width - 5 - 5, 1);
-    let tone = if ratio >= 0.9 { FAULT_TONE } else { SIGNAL_TONE };
     if p.truecolor {
-        let mut m = Meter::new(ratio, tone);
-        m.theme = p.dither;
-        m.render(bar, buf);
+        // Thin btop-style gauge: a heavy rule for the value on a faint track.
+        let c = if ratio >= 0.9 { p.fault } else { p.signal };
+        let filled = (ratio * bar.width as f32).round() as u16;
+        for x in 0..bar.width {
+            let (ch, col) = if x < filled {
+                ("━", c)
+            } else {
+                ("━", blend(p.wire, p.ground, 0.8))
+            };
+            buf.set_string(bar.x + x, bar.y, ch, p.text(col));
+        }
     } else {
         let filled = (ratio * bar.width as f32).round() as usize;
         let s = format!("{}{}", "█".repeat(filled), "░".repeat(bar.width as usize - filled));
@@ -597,52 +643,48 @@ fn meter_row(buf: &mut Buffer, r: Rect, label: &str, ratio: f32, p: &Palette) {
     buf.set_string(r.right() - 4, r.y, v, p.text(c));
 }
 
-/// A chrome-free area spark. With `max`, the scale is fixed (CPU 0–100), so a
-/// quiet machine looks quiet instead of auto-scaling noise into mountains.
-fn spark(buf: &mut Buffer, r: Rect, vals: &[f64], max: Option<f64>, tone: Tone, p: &Palette) {
+/// A chrome-free braille area spark. With `max`, the scale is fixed (CPU
+/// 0–100), so a quiet machine looks quiet instead of auto-scaling noise.
+fn spark(buf: &mut Buffer, r: Rect, vals: &[f64], max: Option<f64>, color: Color, p: &Palette) {
     if vals.len() < 2 || r.width == 0 || r.height == 0 {
         buf.set_stringn(r.x, r.y, "collecting…", r.width as usize, p.text(p.mute));
         return;
     }
-    let tail = &vals[vals.len().saturating_sub(r.width as usize)..];
-    if p.truecolor {
-        let series = [Series::new("", tone, tail.to_vec())];
-        let mut c = Cartesian::new(CartesianKind::Area, &series);
-        c.grid_lines = false;
-        c.y_max = max.or_else(|| Some(tail.iter().copied().fold(1e-9, f64::max) * 1.1));
-        let g = c.render(r.width as usize, r.height as usize * 2);
-        paint(&g, r, buf, p.dither.background);
-    } else {
-        const BARS: [&str; 8] = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"];
-        let hi = max.unwrap_or_else(|| tail.iter().copied().fold(1e-9, f64::max));
-        let s: String = tail
-            .iter()
-            .map(|v| BARS[((v / hi).clamp(0.0, 1.0) * 7.0).round() as usize])
-            .collect();
-        buf.set_string(r.x, r.bottom() - 1, s, p.text(p.signal));
-    }
+    let tail = &vals[vals.len().saturating_sub(r.width as usize * 2)..];
+    let hi = max.unwrap_or_else(|| tail.iter().copied().fold(1e-9, f64::max) * 1.1);
+    braille::plot(
+        buf,
+        r,
+        &[Trace {
+            vals: tail,
+            color,
+            fill: true,
+        }],
+        hi,
+        p.ground,
+    );
 }
 
-/// Deterministic identicon from the hostname: Dither Kit's 8×8 avatar, either
-/// full (8×4 cells) or sampled to 4×2 cells for dense rows.
-fn avatar(buf: &mut Buffer, r: Rect, name: &str, p: &Palette, mini: bool) {
-    if !p.truecolor {
-        buf.set_string(r.x, r.y, if mini { "◆" } else { "◆◆" }, p.text(p.signal));
-        return;
-    }
-    let src = dither_core::avatar(name, None);
-    let grid = if mini {
-        let mut g = PixelGrid::new(4, 4);
-        for y in 0..4 {
-            for x in 0..4 {
-                g.plot(x as i32, y as i32, src.get(x * 2, y * 2));
-            }
-        }
-        g
-    } else {
-        src
-    };
-    paint(&grid, r, buf, p.dither.background);
+/// Hostname monogram on a tinted tile, hue picked from the name so each
+/// machine keeps its colour.
+fn monogram(buf: &mut Buffer, r: Rect, name: &str, p: &Palette) {
+    let hues = [p.signal, p.live, p.relay, p.fault];
+    let hue = hues[name.bytes().fold(0usize, |a, b| a.wrapping_mul(31).wrapping_add(b as usize)) % hues.len()];
+    let initials: String = name
+        .split(|c: char| c.is_whitespace() || c == '-' || c == '.')
+        .filter(|w| w.chars().next().is_some_and(char::is_alphanumeric))
+        .take(2)
+        .filter_map(|w| w.chars().next())
+        .collect::<String>()
+        .to_uppercase();
+    buf.set_style(r, Style::new().bg(blend(hue, p.ground, 0.16)));
+    let x = r.x + r.width.saturating_sub(initials.width() as u16) / 2;
+    buf.set_string(
+        x,
+        r.y + r.height / 2,
+        &initials,
+        Style::new().fg(hue).bg(blend(hue, p.ground, 0.16)).add_modifier(Modifier::BOLD),
+    );
 }
 
 // ───────────────────────────── peers ─────────────────────────────
@@ -712,10 +754,18 @@ fn peer_list<'a>(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&'a Device
         if selected {
             buf.set_style(Rect::new(r.x, y, r.width, 2.min(r.bottom() - y)), Style::new().bg(p.raised));
         }
-        avatar(buf, Rect::new(r.x, y, 4, 2), &d.name, p, true);
-        let x = r.x + 5;
-        let w = r.width.saturating_sub(5) as usize;
         let online = matches!(d.presence, Presence::Online { .. });
+        let dot = match &d.presence {
+            Presence::Online {
+                latency: Latency::Relay { .. },
+            } => p.relay,
+            Presence::Online { .. } => p.live,
+            Presence::Offline { .. } => p.asleep,
+        };
+        let glyph = if online { "●" } else { "○" };
+        buf.set_string(r.x + 1, y, glyph, if selected { p.text(dot).bg(p.raised) } else { p.text(dot) });
+        let x = r.x + 3;
+        let w = r.width.saturating_sub(3) as usize;
         let (right, right_c, sub) = match &d.presence {
             Presence::Online { latency: l } => {
                 let path = match l {
@@ -990,29 +1040,21 @@ fn detail(buf: &mut Buffer, area: Rect, snap: &Snapshot, peers: &[&Device], ui: 
             match snap.history.latency.get(&d.id).filter(|h| h.len() >= 2) {
                 Some(h) if chart_r.height >= 5 => {
                     let vals: Vec<f64> = h.iter().map(|v| *v as f64).collect();
-                    if p.truecolor {
-                        let n = vals.len();
-                        let labels_owned: Vec<String> = (0..n)
-                            .map(|i| {
-                                if i == 0 {
-                                    format!("-{}m", (n - 1) / 2)
-                                } else if i == n - 1 {
-                                    "now".into()
-                                } else {
-                                    String::new()
-                                }
-                            })
-                            .collect();
-                        let labels: Vec<&str> = labels_owned.iter().map(String::as_str).collect();
-                        let series = [Series::new("latency ms", SIGNAL_TONE, vals)];
-                        Chart::line(&series)
-                            .labels(&labels)
-                            .legend(false)
-                            .theme(p.dither)
-                            .render(chart_r, buf);
-                    } else {
-                        spark(buf, chart_r, &vals, None, SIGNAL_TONE, p);
-                    }
+                    let span = format!("-{}m", (vals.len() - 1) / 2);
+                    chart(
+                        buf,
+                        chart_r,
+                        &[Series {
+                            name: "latency".into(),
+                            color: p.signal,
+                            vals: &vals,
+                            fill: true,
+                        }],
+                        None,
+                        " ms",
+                        &span,
+                        p,
+                    );
                 }
                 _ => {
                     buf.set_stringn(

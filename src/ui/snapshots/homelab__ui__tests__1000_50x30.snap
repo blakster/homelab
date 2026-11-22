@@ -8,19 +8,19 @@ expression: text
  │ Vansh’s MacBook Air (5)                      │ 
  │ Apple M1 · 8 cores · 16 GB                   │ 
  │                                              │ 
- │ ▀▀▀▀▀▀▀▀▀▄▀▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
- │ CPU  ▀▀▀▄▀  ▄▀    31%  MEM  ▀▀▀▀▀▀▀▀▀    70% │ 
- │ DISK ▀▄▀▄▀▀▀▀▀▀▀▄▀  ▄▀  ▄  54% 124 of 228 GB │ 
+ │ ⣤⣤⣴⣶⣦⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣶⣶⣦⣤⣤⣤⣤⣶⣤⣴⣶⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿ │ 
+ │ CPU  ━━━━━━━━━━━  31%  MEM  ━━━━━━━━━━━  70% │ 
+ │ DISK ━━━━━━━━━━━━━━━━━━━━  54% 124 of 228 GB │ 
  ╰──────────────────────────────────────────────╯ 
  Tailnet ───────────────────── 501 of 1001 online 
- ▀▀▀▀ a-really-long-hostname-that-hits-t… 1999 ms 
- ▀▀▀▀ linux · via DERP fra-extra                  
- ▀▀▀▀ 0                                      0 ms 
- ▀▀▀▀ ios · direct                                
- ▀▀▀▀ Ünïcødé 🚀 phone                       – ms 
- ▀▀▀▀ android · online                            
- ▀▀▀▀ never-seen                          offline 
- ▀▀▀▀ windows · never seen                        
+  ● a-really-long-hostname-that-hits-the… 1999 ms 
+    linux · via DERP fra-extra                    
+  ● 0                                        0 ms 
+    ios · direct                                  
+  ● Ünïcødé 🚀 phone                         – ms 
+    android · online                              
+  ○ never-seen                            offline 
+    windows · never seen                          
                                      1–4 of 1000  
  Services ──────── 1–8 of 1000 · 500 up · 200 off 
  ● OrbStack Dock… down             error sending… 

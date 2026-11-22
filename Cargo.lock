@@ -788,20 +788,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dither-core"
-version = "0.1.0"
-source = "git+https://github.com/DeepanshuMishraa/dither-kit-rs?rev=3abee173e404c85a86653cfc180c88779ddfdb63#3abee173e404c85a86653cfc180c88779ddfdb63"
-
-[[package]]
-name = "dither-ratatui"
-version = "0.1.0"
-source = "git+https://github.com/DeepanshuMishraa/dither-kit-rs?rev=3abee173e404c85a86653cfc180c88779ddfdb63#3abee173e404c85a86653cfc180c88779ddfdb63"
-dependencies = [
- "dither-core",
- "ratatui",
-]
-
-[[package]]
 name = "document-features"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1227,7 +1213,6 @@ dependencies = [
  "chrono",
  "clap",
  "crossterm",
- "dither-ratatui",
  "insta",
  "rand 0.10.4",
  "ratatui",

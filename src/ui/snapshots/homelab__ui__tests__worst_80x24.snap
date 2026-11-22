@@ -5,19 +5,19 @@ expression: text
  homelab  ·  株式会社サーバー’s Mac Studio — build farm (2)                     
  ▲ OrbStack Docker down · error sending request for url (http://127.0.0.1:3001… 
  ╭ hub ───────────────────────────────────────────────────────────────────────╮ 
- │ ▀▀▀▀▀▀▀▀  株式会社サーバー’s Mac Studio — build farm (2)                   │ 
- │ ▀▀▀▀▀▀▀▀  Apple M4 Ultra with an unusually long brand string · 32 cores ·… │ 
- │ ▀▀▀▀▀▀▀▀  up 400d · load 99.99 88.88 77.77                                 │ 
- │ ▀▀▀▀▀▀▀▀  memory pressure critical                                         │ 
- │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
- │ ▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄▀▀▀ ▀▀▀▄ │ 
- │ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
- │ CPU  ▀▄▀▄▀▄▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ 100%  MEM  ▀▄▀▄▀▄▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ 100% │ 
- │ DISK ▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀     0% no disk data │ 
+ │           株式会社サーバー’s Mac Studio — build farm (2)                   │ 
+ │           Apple M4 Ultra with an unusually long brand string · 32 cores ·… │ 
+ │   株M     up 400d · load 99.99 88.88 77.77                                 │ 
+ │           memory pressure critical                                         │ 
+ │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ │ ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿ │ 
+ │ CPU  ━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%  MEM  ━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% │ 
+ │ DISK ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   0% no disk data │ 
  ╰────────────────────────────────────────────────────────────────────────────╯ 
  Tailnet ──────────────────────────────────────────────────────── 4 of 7 online 
- ▀▀▀▀ a-really-long-hostname-that-hits-the-dns-label-limit-of-63-char   1999 ms 
- ▀▀▀▀ linux · via DERP fra-extra                                                
+  ● a-really-long-hostname-that-hits-the-dns-label-limit-of-63-char     1999 ms 
+    linux · via DERP fra-extra                                                  
                                                                                 
                                                                       1–1 of 6  
  Services ───────────────────────────────────────────── 1–4 of 6 · 2 up · 1 off 

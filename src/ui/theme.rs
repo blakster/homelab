@@ -2,8 +2,6 @@
 //! domain, not from a gray scale: `signal` is data, `live`/`relay`/`fault`
 //! are status, `wire` is structure, `ink*` are the four text tiers.
 
-use dither_ratatui::Theme as DitherTheme;
-use dither_ratatui::prelude::{Rgba, Tone};
 use ratatui::style::{Color, Modifier, Style};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -26,14 +24,9 @@ pub struct Palette {
     pub relay: Color,
     pub fault: Color,
     pub asleep: Color,
-    /// Dithered pixels only render in truecolor; plain mode draws text bars.
+    /// Thin gauges need truecolor for their faint track; plain mode draws text bars.
     pub truecolor: bool,
-    pub dither: DitherTheme,
 }
-
-/// The one accent: an indigo close to strawhat's bars.
-pub const SIGNAL_TONE: Tone = Tone::Hue(238.0);
-pub const FAULT_TONE: Tone = Tone::Red;
 
 const fn rgb(hex: u32) -> Color {
     Color::Rgb((hex >> 16) as u8, (hex >> 8) as u8, hex as u8)
@@ -57,7 +50,6 @@ impl Palette {
                 fault: Color::Red,
                 asleep: Color::DarkGray,
                 truecolor: false,
-                dither: DitherTheme::dark(),
             };
         }
         match mode {
@@ -75,10 +67,6 @@ impl Palette {
                 fault: rgb(0xe5484d),
                 asleep: rgb(0x3c3c44),
                 truecolor: true,
-                dither: DitherTheme {
-                    background: Rgba::hex(0x0b0b0d),
-                    ..DitherTheme::dark()
-                },
             },
             Mode::Light => Palette {
                 ground: rgb(0xfafafa),
@@ -94,10 +82,6 @@ impl Palette {
                 fault: rgb(0xd92d3a),
                 asleep: rgb(0xc8c8ce),
                 truecolor: true,
-                dither: DitherTheme {
-                    background: Rgba::hex(0xfafafa),
-                    ..DitherTheme::light()
-                },
             },
         }
     }

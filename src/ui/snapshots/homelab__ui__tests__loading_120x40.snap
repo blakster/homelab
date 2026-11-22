@@ -24,21 +24,21 @@ expression: text
                           │ ● Air Health             off                         disabled in config                     
                           │                                                                                             
                           │ History ──────────────────────────────────────────────────────────────────────── last 1 min 
-                          │ collecting…                                   latency: waiting for pings…                   
+                          │ ● cpu 0%  ● mem 0%                      100%  latency: waiting for pings…                   
                           │                                                                                             
                           │                                                                                             
                           │                                                                                             
+                          │ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄                                                
                           │                                                                                             
                           │                                                                                             
                           │                                                                                             
+                          │ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄                                                
                           │                                                                                             
                           │                                                                                             
                           │                                                                                             
+                          │ ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄                                                
                           │                                                                                             
                           │                                                                                             
                           │                                                                                             
-                          │                                                                                             
-                          │                                                                                             
-                          │                                                                                             
-                          │                                                                                             
+                          │ -0m ──────────────────────────────────── now                                                
  0 online · 0 offline                                         t light · p plain · tab pane · ⏎ detail · ? help · q quit
