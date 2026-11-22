@@ -172,6 +172,37 @@ async fn sessions_are_independent() {
 }
 
 #[tokio::test]
+async fn session_follows_the_client_terminal_background() {
+    let me = key();
+    let port = start("theme", &me).await;
+    let (h, ok) = connect(port, &me).await;
+    assert!(ok);
+    let mut ch = h.channel_open_session().await.unwrap();
+    ch.request_pty(false, "xterm-ghostty", 120, 40, 0, 0, &[]).await.unwrap();
+    ch.request_shell(false).await.unwrap();
+    // Answer the server's OSC 11 query with a white background, as a terminal would.
+    let mut answered = false;
+    let mut screen = String::new();
+    let _ = timeout(Duration::from_secs(5), async {
+        while let Some(msg) = ch.wait().await {
+            if let ChannelMsg::Data { data } = msg {
+                screen.push_str(&String::from_utf8_lossy(&data));
+                if !answered && data.windows(5).any(|w| w == b"]11;?") {
+                    ch.data(&b"\x1b]11;rgb:ffff/ffff/ffff\x07"[..]).await.unwrap();
+                    answered = true;
+                }
+                if screen.contains("38;2;24;24;27") {
+                    break; // light palette ink made it into a frame
+                }
+            }
+        }
+    })
+    .await;
+    assert!(answered, "server queried the terminal background");
+    assert!(screen.contains("38;2;24;24;27"), "light palette after OSC 11 reply");
+}
+
+#[tokio::test]
 async fn zero_sized_pty_falls_back_to_80x24() {
     // OpenSSH sends 0×0 for `ssh -tt` when its stdin is a pipe.
     let me = key();

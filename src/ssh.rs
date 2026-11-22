@@ -23,7 +23,7 @@ use tokio::sync::{mpsc, watch};
 
 use crate::config::{SshConfig, expand};
 use crate::model::Snapshot;
-use crate::ui::{self, Action, UiState, state::parse_keys};
+use crate::ui::{self, UiState, state::parse_keys};
 
 /// Serve until the listener fails.
 pub async fn serve(cfg: &SshConfig, snapshots: watch::Receiver<Arc<Snapshot>>) -> Result<()> {
@@ -110,13 +110,15 @@ impl russh::server::Server for Server {
             server: self.clone(),
             channel: None,
             size: None,
+            term: None,
             input: None,
         }
     }
 }
 
 enum Input {
-    Keys(Vec<Action>),
+    /// Raw bytes from the client terminal: keystrokes, and the OSC 11 reply.
+    Data(Vec<u8>),
     Resize(u16, u16),
 }
 
@@ -125,6 +127,7 @@ struct Conn {
     server: Server,
     channel: Option<ChannelId>,
     size: Option<(u16, u16)>,
+    term: Option<String>,
     input: Option<mpsc::UnboundedSender<Input>>,
 }
 
@@ -181,7 +184,7 @@ impl Handler for Conn {
     async fn pty_request(
         &mut self,
         channel: ChannelId,
-        _: &str,
+        term: &str,
         cols: u32,
         rows: u32,
         _: u32,
@@ -195,6 +198,7 @@ impl Handler for Conn {
         } else {
             (cols.min(u16::MAX as u32) as u16, rows.min(u16::MAX as u32) as u16)
         });
+        self.term = Some(term.to_owned());
         session.channel_success(channel)?;
         Ok(())
     }
@@ -207,7 +211,15 @@ impl Handler for Conn {
         session.channel_success(channel)?;
         let (tx, rx) = mpsc::unbounded_channel();
         self.input = Some(tx);
-        tokio::spawn(run_session(session.handle(), channel, self.server.snapshots.clone(), rx, (w, h)));
+        let term = self.term.clone().unwrap_or_default();
+        tokio::spawn(run_session(
+            session.handle(),
+            channel,
+            self.server.snapshots.clone(),
+            rx,
+            (w, h),
+            term,
+        ));
         Ok(())
     }
 
@@ -224,7 +236,7 @@ impl Handler for Conn {
 
     async fn data(&mut self, _: ChannelId, data: &[u8], _: &mut Session) -> Result<()> {
         if let Some(tx) = &self.input {
-            let _ = tx.send(Input::Keys(parse_keys(data)));
+            let _ = tx.send(Input::Data(data.to_vec()));
         }
         Ok(())
     }
@@ -260,6 +272,10 @@ impl std::io::Write for ChannelWriter {
     }
 }
 
+/// How long to wait for the client terminal's OSC 11 reply before giving up
+/// and keeping the dark fallback. One tailnet round trip is usually enough.
+const THEME_PROBE_TIMEOUT: Duration = Duration::from_millis(500);
+
 /// Owns this session's terminal and UI state; nothing here is shared.
 async fn run_session(
     handle: Handle,
@@ -267,6 +283,7 @@ async fn run_session(
     mut snapshots: watch::Receiver<Arc<Snapshot>>,
     mut input: mpsc::UnboundedReceiver<Input>,
     (w, h): (u16, u16),
+    term_type: String,
 ) {
     let (tx, mut out) = mpsc::unbounded_channel::<Vec<u8>>();
     let sender = handle.clone();
@@ -287,7 +304,58 @@ async fn run_session(
         return;
     };
     let _ = execute!(term.backend_mut(), EnterAlternateScreen, Hide);
-    let mut ui = UiState::default();
+
+    // Ask the client terminal for its background colour (OSC 11) before the
+    // first frame, so the palette follows the user's theme. Bytes that aren't
+    // the reply (early keystrokes) stay in `probe` and are handled after.
+    let mut probe: Vec<u8> = Vec::with_capacity(128);
+    let mut bg = None;
+    let _ = handle.data(channel, bytes::Bytes::from_static(ui::theme::OSC11_QUERY)).await;
+    let deadline = tokio::time::Instant::now() + THEME_PROBE_TIMEOUT;
+    loop {
+        if let Some(rgb) = ui::theme::take_osc11(&mut probe) {
+            bg = Some(rgb);
+            break;
+        }
+        let now = tokio::time::Instant::now();
+        if now >= deadline {
+            break;
+        }
+        match tokio::time::timeout(deadline - now, input.recv()).await {
+            Ok(Some(Input::Data(bytes))) => probe.extend_from_slice(&bytes),
+            Ok(Some(Input::Resize(w, h))) => {
+                let _ = term.resize(Rect::new(0, 0, w, h));
+            }
+            _ => break,
+        }
+    }
+    if bg.is_none() {
+        // A truncated reply must not be read as keystrokes.
+        if let Some(pos) = probe.windows(5).rposition(|w| w == b"\x1b]11;") {
+            probe.truncate(pos);
+        }
+    }
+
+    let plain = ui::theme::detect_plain_env(None, None, Some(term_type.as_str()));
+    let mut ui = match bg {
+        Some(rgb) => UiState::from_terminal_env(ui::theme::TerminalEnv {
+            bg: ui::theme::bg_from_rgb(rgb),
+            bg_rgb: Some(rgb),
+            plain,
+        }),
+        None => UiState {
+            plain,
+            ..UiState::default()
+        },
+    };
+    if !probe.is_empty() {
+        let snap = snapshots.borrow_and_update().clone();
+        let peers = snap.devices().iter().filter(|d| !d.is_self).count();
+        for k in parse_keys(&probe) {
+            ui.apply(k, peers, snap.services.len());
+        }
+    }
+
     loop {
         let snap = snapshots.borrow_and_update().clone();
         if term.draw(|f| ui::render(f.area(), f.buffer_mut(), &snap, &ui)).is_err() {
@@ -298,9 +366,9 @@ async fn run_session(
             msg = input.recv() => match msg {
                 None => break,
                 Some(Input::Resize(w, h)) => { let _ = term.resize(Rect::new(0, 0, w, h)); }
-                Some(Input::Keys(keys)) => {
+                Some(Input::Data(bytes)) => {
                     let peers = snap.devices().iter().filter(|d| !d.is_self).count();
-                    for k in keys { ui.apply(k, peers, snap.services.len()); }
+                    for k in parse_keys(&bytes) { ui.apply(k, peers, snap.services.len()); }
                 }
             },
         }

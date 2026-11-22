@@ -196,6 +196,11 @@ impl Palette {
     }
 }
 
+pub fn bg_from_rgb(rgb: (u8, u8, u8)) -> TerminalBg {
+    let lum = 0.2126 * rgb.0 as f32 + 0.7152 * rgb.1 as f32 + 0.0722 * rgb.2 as f32;
+    if lum >= 128.0 { TerminalBg::Light } else { TerminalBg::Dark }
+}
+
 /// Detect the local terminal's background polarity, RGB color (via OSC 11),
 /// and whether to fall back to plain ANSI-16 (`NO_COLOR` / non-truecolor).
 pub fn detect_terminal() -> TerminalEnv {
@@ -205,10 +210,8 @@ pub fn detect_terminal() -> TerminalEnv {
         std::env::var("TERM").ok().as_deref(),
     );
     if let Some(rgb) = query_osc11() {
-        let lum = 0.2126 * rgb.0 as f32 + 0.7152 * rgb.1 as f32 + 0.0722 * rgb.2 as f32;
-        let bg = if lum >= 128.0 { TerminalBg::Light } else { TerminalBg::Dark };
         return TerminalEnv {
-            bg,
+            bg: bg_from_rgb(rgb),
             bg_rgb: Some(rgb),
             plain,
         };
@@ -240,6 +243,34 @@ pub fn parse_colorfgbg(val: &str) -> Option<TerminalBg> {
         7 | 9..=15 => Some(TerminalBg::Light),
         _ => None,
     }
+}
+
+/// The OSC 11 query sent to terminals that are reached over a byte stream
+/// (SSH), where stdin/stdout aren't the terminal themselves.
+pub const OSC11_QUERY: &[u8] = b"\x1b]11;?\x07";
+
+/// Pull a complete OSC 11 reply out of channel bytes, draining it from `buf`.
+/// Returns the RGB once a full `ESC ] 11 ; rgb:… BEL|ST` sequence has arrived.
+pub fn take_osc11(buf: &mut Vec<u8>) -> Option<(u8, u8, u8)> {
+    let start = buf.windows(5).position(|w| w == b"\x1b]11;")?;
+    let body = start + 5;
+    let mut end = None;
+    let mut i = body;
+    while i < buf.len() {
+        if buf[i] == 0x07 {
+            end = Some(i + 1);
+            break;
+        }
+        if buf[i] == 0x1b && buf.get(i + 1) == Some(&b'\\') {
+            end = Some(i + 2);
+            break;
+        }
+        i += 1;
+    }
+    let end = end?;
+    let rgb = parse_osc11_rgb(&buf[start..end])?;
+    buf.drain(start..end);
+    Some(rgb)
 }
 
 /// Parse an OSC 11 response like `\x1b]11;rgb:1a1a/1b1b/2626\x07` or `...\x1b\\`.
@@ -364,6 +395,22 @@ mod tests {
         assert!(!detect_plain_env(None, Some("24bit"), Some("xterm")));
         assert!(detect_plain_env(None, None, Some("dumb")));
         assert!(!detect_plain_env(None, None, Some("xterm-256color")));
+    }
+
+    #[test]
+    fn take_osc11_drains_reply_and_keeps_keystrokes() {
+        let mut buf = b"q\x1b]11;rgb:1e1e/1e1e/1e1e".to_vec();
+        assert_eq!(take_osc11(&mut buf), None, "incomplete reply waits");
+        buf.extend_from_slice(b"\x07j");
+        assert_eq!(take_osc11(&mut buf), Some((0x1e, 0x1e, 0x1e)));
+        assert_eq!(buf, b"qj", "keystrokes around the reply survive");
+    }
+
+    #[test]
+    fn take_osc11_accepts_st_terminator() {
+        let mut buf = b"\x1b]11;rgb:ffff/ffff/ffff\x1b\\".to_vec();
+        assert_eq!(take_osc11(&mut buf), Some((255, 255, 255)));
+        assert!(buf.is_empty());
     }
 
     #[test]
