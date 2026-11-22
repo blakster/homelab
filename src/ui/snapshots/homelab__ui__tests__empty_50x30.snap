@@ -1,0 +1,34 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  Vansh’s MacBook Air (5)              
+ ╭ hub ─────────────────────────────────────────╮ 
+ │ Vansh’s MacBook Air (5)                      │ 
+ │ Apple M1 · 8 cores · 16 GB                   │ 
+ │                                              │ 
+ │ ▀▀▀▀▀▀▀▀▀▄▀▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
+ │ CPU  ▀▀▀▄▀  ▄▀    31%  MEM  ▀▀▀▀▀▀▀▀▀    70% │ 
+ │ DISK ▀▄▀▄▀▀▀▀▀▀▀▄▀  ▄▀  ▄  54% 124 of 228 GB │ 
+ ╰──────────────────────────────────────────────╯ 
+ Tailnet ────────────────────────── 1 of 1 online 
+ No peers yet. Run `tailscale up` on another      
+ device.                                          
+ Services ────────────────────────────────── 0 up 
+ No services yet. Add a [[service]] to            
+ ~/.config/homelab/config.toml.                   
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+ 0 online · 0 offline · up 2d 4h  ? help · q quit

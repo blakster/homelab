@@ -1,0 +1,34 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  Vansh’s MacBook Air (5)              
+ ╭ hub ─────────────────────────────────────────╮ 
+ │ Vansh’s MacBook Air (5)                      │ 
+ │ Apple M1 · 8 cores · 16 GB                   │ 
+ │                                              │ 
+ │ ▀▀▀▀▀▀▀▀▀▄▀▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
+ │ CPU  ▀▀▀▄▀  ▄▀    31%  MEM  ▀▀▀▀▀▀▀▀▀    70% │ 
+ │ DISK ▀▄▀▄▀▀▀▀▀▀▀▄▀  ▄▀  ▄  54% 124 of 228 GB │ 
+ ╰──────────────────────────────────────────────╯ 
+ Tailnet ────────────────────────── 2 of 2 online 
+ ▀▀▀▀ vanshs-macbook-air-5-rex              11 ms 
+ ▀▀▀▀ macOS · direct                              
+ Services ────────────────────────────────── 1 up 
+ ● Pulse          up         41 ms https://vansh… 
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+ 1 online · 0 offline · up 2d 4h  ? help · q quit

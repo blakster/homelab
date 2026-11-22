@@ -1,0 +1,28 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  Vansh’s MacBook Air (5)                                            
+ ▲ tailscale: can't run /Applications/Tailscale.app/Contents/MacOS/Tailscale: … 
+ ╭ hub ───────────────────────────────────────────────────────────────────────╮ 
+ │ ▀▀▀▀▀▀▀▀  Vansh’s MacBook Air (5)                                          │ 
+ │ ▀▀▀▀▀▀▀▀  Apple M1 · 8 cores · 16 GB                                       │ 
+ │ ▀▀▀▀▀▀▀▀  up 2d 4h · load 3.61 3.44 3.41                                   │ 
+ │ ▀▀▀▀▀▀▀▀  memory pressure normal                                           │ 
+ │                                                                            │ 
+ │  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄                          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │ 
+ │ ▀▀▄ ▄ ▄ ▄ ▀ ▀ ▀ ▄ ▀ ▀ ▄ ▀ ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀ ▄ ▀▀▀ ▀  │ 
+ │ CPU  ▀▀▀▀▀▀▀▀▀  ▄▀  ▄▀  ▄▀  ▄▀   31%  MEM  ▀▄▀▄▀▀▀▄▀▀▀▀▀▀▀▀▀▀ ▄▀  ▄▀   70% │ 
+ │ DISK ▀▄▀▄▀▄▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀   54% 124 of 228 GB │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+ Tailnet ──────────────────────────────────────────────── tailscale unavailable 
+ can't run /Applications/Tailscale.app/Contents/MacOS/Tailscale: No such file   
+ or directory                                                                   
+ Services ──────────────────────────────────────────────────────── 0 up · 1 off 
+ ● OrbStack Docker     down             for 33m    docker daemon unreachable    
+ ● Pulse Postgres      blocked          for 33m    blocked by OrbStack Docker   
+ ● Pulse               blocked          for 33m    blocked by OrbStack Docker   
+ ● Air Health          off                         disabled in config           
+                                                                                
+                                                                                
+ 0 online · 0 offline · up 2d 4h          tab pane · ⏎ detail · ? help · q quit

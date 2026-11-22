@@ -1,0 +1,44 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab                  │ ▲ OrbStack Docker down · error sending request for url (http://127.0.0.1:3001/healthz): cl… 
+                          │ Machines ─────────────────────────────────────────────────────────────── 501 of 1001 online 
+ THIS MAC                 │ ┌ BLAKSTER.GITHUB ────────────────┐                ╭ hub ─────────────────────────────────╮ 
+ Vansh’s MacBook Air… 31% │ │ ▀▀▀▀ a-really-long-hos… 1999 ms ├╌ 1999 ms ╌╌╌┐  │ ▀▀▀▀▀▀▀▀  Vansh’s MacBook Air (5)    │ 
+                          │ │ ▀▀▀▀ linux · via DERP fra-extra │             │  │ ▀▀▀▀▀▀▀▀  Apple M1 · 8 cores · 16 GB │ 
+ TAILNET         500/1000 │ │ ▀▀▀▀ 0                     0 ms ├─ 0 ms ──────┤  │ ▀▀▀▀▀▀▀▀  up 2d 4h · load 3.61 3.44… │ 
+ ● a-really-long… 1999 ms │ │ ▀▀▀▀ ios · direct               │             │  │ ▀▀▀▀▀▀▀▀  memory pressure normal     │ 
+ ● 0                 0 ms │ │ ▀▀▀▀ Ünïcødé 🚀 phone      – ms ├─ – ms ──────┤  │                                      │ 
+ ● Ünïcødé 🚀 phone  – ms │ │ ▀▀▀▀ android · online           │             ├──┤                                      │ 
+ ○ never-seen       never │ │ ▀▀▀▀ never-seen         offline │             │  │                         ▄▄▄▄▄▄▄▄▄▄▄▄ │ 
+ ○ ancient           900d │ │ ▀▀▀▀ windows · never seen       │             │  │   ▄▄ ▄▄▄▄▄▄▄▄▄▄▄▀▀▀▀▀▀▀▀▀▀▀▀ ▄▀▄▀▄ ▀ │ 
+ ○ clock-skew          0s │ │ ▀▀▀▀ ancient            offline │             │  │ ▀▀▀▀▀▀▀▀▄▀▀▀▀ ▄ ▀▀▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
+ ● vanshs-macbook-… 11 ms │ │ ▀▀▀▀ linux · last seen 900d ago │             │  │ CPU  ▀▀ ▄▀    31%  MEM  ▀▀▀▀▀    70% │ 
+ ● vansh-box-1     182 ms │ │ ▀▀▀▀ clock-skew         offline │             │  │ DISK ▀▀▀▀▀▀▀▄▀  ▄  54% 124 of 228 GB │ 
+ ○ Nothing Phone (… 8d 3h │ │ ▀▀▀▀ linux · last seen just now │             │  ╰──────────────────────────────────────╯ 
+ ○ vansh-box          39d │ │ ▀▀▀▀ vanshs-macbook-ai…   11 ms ├─ 11 ms ─────┤                                           
+ ● a-really-long… 1999 ms │ │ ▀▀▀▀ macOS · direct             │             │                                           
+ ● 0                 0 ms │ │ ▀▀▀▀ vansh-box-1         182 ms ├╌ 182 ms ╌╌╌╌┤                                           
+ ● Ünïcødé 🚀 phone  – ms │ │ ▀▀▀▀ linux · via DERP bom       │             │                                           
+ ○ never-seen       never │ │ ▀▀▀▀ Nothing Phone (1)  offline │             │                                           
+ ○ ancient           900d │ │ ▀▀▀▀ android · last seen 8d 3h… │             │                                           
+ ○ clock-skew          0s │ │ ▀▀▀▀ vansh-box          offline │             │                                           
+ ● vanshs-macbook-… 11 ms │ │ ▀▀▀▀ linux · last seen 39d ago  │             │                                           
+ ● vansh-box-1     182 ms │ │ ▀▀▀▀ a-really-long-hos… 1999 ms ├╌ 1999 ms ╌╌╌┤                                           
+ ○ Nothing Phone (… 8d 3h │ │ ▀▀▀▀ linux · via DERP fra-extra │             │                                           
+ ○ vansh-box          39d │ │ ▀▀▀▀ 0                     0 ms ├─ 0 ms ──────┘                                           
+ ● a-really-long… 1999 ms │ │ ▀▀▀▀ ios · direct               │                                                         
+ ● 0                 0 ms │ │                                 │                                                         
+ ● Ünïcødé 🚀 phone  – ms │ │                   1–12 of 1000  │                                                         
+ +977 more                │ └─────────────────────────────────┘                                                         
+                          │                                                                                             
+ SERVICES         500/800 │ Services ─────────────────────────────────────────────────── 1–7 of 1000 · 500 up · 200 off 
+ ● OrbStack Docker   down │ ● OrbStack Docker        down             for 400d   error sending request for url (http:/… 
+ ● A service nam… blocked │ ● A service name that i… blocked          for 59s    blocked by root                        
+ ● z                   up │ ● z                      up          0 ms for 0s                                            
+ ● Slow                up │ ● Slow                   up       2999 ms for 0s                                            
+ ● Never probed  checking │ ● Never probed           checking                    waiting for first probe                
+ ● Disabled           off │ ● Disabled               off                         disabled in config                     
+ +994 more                │ ● OrbStack Docker        up          4 ms for 2d                                            
+ 500 online · 500 offline · up 2d 4h                          t light · p plain · tab pane · ⏎ detail · ? help · q quit

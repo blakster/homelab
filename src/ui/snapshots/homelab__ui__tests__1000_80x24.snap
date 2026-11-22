@@ -1,0 +1,28 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  Vansh’s MacBook Air (5)                                            
+ ▲ OrbStack Docker down · error sending request for url (http://127.0.0.1:3001… 
+ ╭ hub ───────────────────────────────────────────────────────────────────────╮ 
+ │ ▀▀▀▀▀▀▀▀  Vansh’s MacBook Air (5)                                          │ 
+ │ ▀▀▀▀▀▀▀▀  Apple M1 · 8 cores · 16 GB                                       │ 
+ │ ▀▀▀▀▀▀▀▀  up 2d 4h · load 3.61 3.44 3.41                                   │ 
+ │ ▀▀▀▀▀▀▀▀  memory pressure normal                                           │ 
+ │                                                                            │ 
+ │  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄                          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │ 
+ │ ▀▀▄ ▄ ▄ ▄ ▀ ▀ ▀ ▄ ▀ ▀ ▄ ▀ ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀ ▄ ▀▀▀ ▀  │ 
+ │ CPU  ▀▀▀▀▀▀▀▀▀  ▄▀  ▄▀  ▄▀  ▄▀   31%  MEM  ▀▄▀▄▀▀▀▄▀▀▀▀▀▀▀▀▀▀ ▄▀  ▄▀   70% │ 
+ │ DISK ▀▄▀▄▀▄▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀   54% 124 of 228 GB │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+ Tailnet ─────────────────────────────────────────────────── 501 of 1001 online 
+ ▀▀▀▀ a-really-long-hostname-that-hits-the-dns-label-limit-of-63-char   1999 ms 
+ ▀▀▀▀ linux · via DERP fra-extra                                                
+                                                                                
+                                                                   1–1 of 1000  
+ Services ────────────────────────────────────── 1–4 of 1000 · 500 up · 200 off 
+ ● OrbStack Docker     down             for 400d   error sending request for u… 
+ ● A service name tha… blocked          for 59s    blocked by root              
+ ● z                   up          0 ms for 0s                                  
+ ● Slow                up       2999 ms for 0s                                  
+ 500 online · 500 offline · up 2d 4h      tab pane · ⏎ detail · ? help · q quit

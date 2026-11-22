@@ -1,0 +1,44 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab                  │ ▲ OrbStack Docker down · error sending request for url (http://127.0.0.1:3001/healthz): cl… 
+                          │ Machines ──────────────────────────────────────────────────────────────────── 4 of 7 online 
+ THIS MAC                 │ ┌ A-VERY-LONG-TAILNET-NAME.GITHUB ┐                ╭ hub ─────────────────────────────────╮ 
+ 株式会社サーバー’s… 100% │ │ ▀▀▀▀ a-really-long-hos… 1999 ms ├╌ 1999 ms ╌╌╌┐  │ ▀▀▀▀▀▀▀▀  株式会社サーバー’s Mac St… │ 
+                          │ │ ▀▀▀▀ linux · via DERP fra-extra │             │  │ ▀▀▀▀▀▀▀▀  Apple M4 Ultra with an un… │ 
+ TAILNET              3/6 │ │ ▀▀▀▀ 0                     0 ms ├─ 0 ms ──────┤  │ ▀▀▀▀▀▀▀▀  up 400d · load 99.99 88.8… │ 
+ ● a-really-long… 1999 ms │ │ ▀▀▀▀ ios · direct               │             │  │ ▀▀▀▀▀▀▀▀  memory pressure critical   │ 
+ ● 0                 0 ms │ │ ▀▀▀▀ Ünïcødé 🚀 phone      – ms ├─ – ms ──────┤  │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
+ ● Ünïcødé 🚀 phone  – ms │ │ ▀▀▀▀ android · online           │             └──┤ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
+ ○ never-seen       never │ │ ▀▀▀▀ never-seen         offline │                │ ▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄▀▀▀▄ │ 
+ ○ ancient           900d │ │ ▀▀▀▀ windows · never seen       │                │ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
+ ○ clock-skew          0s │ │ ▀▀▀▀ ancient            offline │                │ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
+                          │ │ ▀▀▀▀ linux · last seen 900d ago │                │ CPU  ▀▀▀▀▀▀▀ 100%  MEM  ▀▀▀▀▀▀▀ 100% │ 
+ SERVICES             2/5 │ │ ▀▀▀▀ clock-skew         offline │                │ DISK ▀  ▄▀  ▄▀  ▄▀   0% no disk data │ 
+ ● OrbStack Docker   down │ │ ▀▀▀▀ linux · last seen just now │                ╰──────────────────────────────────────╯ 
+ ● A service nam… blocked │ └─────────────────────────────────┘                                                         
+ ● z                   up │                                                                                             
+ ● Slow                up │ Services ───────────────────────────────────────────────────────────────────── 2 up · 1 off 
+ ● Never probed  checking │ ● OrbStack Docker        down             for 400d   error sending request for url (http:/… 
+ ● Disabled           off │ ● A service name that i… blocked          for 59s    blocked by OrbStack Docker             
+                          │ ● z                      up          0 ms for 0s                                            
+                          │ ● Slow                   up       2999 ms for 0s                                            
+                          │ ● Never probed           checking                    waiting for first probe                
+                          │ ● Disabled               off                         disabled in config                     
+                          │                                                                                             
+                          │ History ─────────────────────────────────────────────────────────────────────── last 10 min 
+                          │             ▚▚ cpu %  ▚▚ mem %                           ▚▚ a-really-long-hos…              
+                          │                                                                                             
+                          │ 100 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀    2k ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ 
+                          │     ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀       ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  
+                          │  75 ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  1.5k ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄ 
+                          │     ▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄▀▀▀▀▀▀▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀         ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀  
+                          │  50 ▀▀▀▄▀▀▀▀▀▀▀▄▀▀▀▄▀▀▀▀▀▀▀▄▀▀▀▄▀▀▀▀▀▀▀▄▀▀▀▄    1k ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  
+                          │     ▀▄▀▀▀▀▀▄▀▀▀▀▀▄▀▀▀▀▀▄▀▀▀▀▀▄▀▀▀▀▀▄▀▀▀▀▀▄▀▀       ▀ ▀▀  ▀  ▀▀ ▀ ▀▀  ▀  ▀▀ ▀ ▀▀  ▀  ▀▀ ▀ ▀▀ 
+                          │     ▀▄▀▀▀▄▀ ▀▀▀▄▀▄▀▀▀▄▀ ▀▀▀▄▀▄▀▀▀▄▀ ▀▀▀▄▀▄▀▀       ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀    
+                          │  25 ▀ ▀▀▀ ▀ ▀▀▀ ▀ ▀▀▀ ▀ ▀▀▀ ▀ ▀▀▀ ▀ ▀▀▀ ▀ ▀▀   500 ▀  ▀  ▀  ▀  ▀ ▀▀  ▀  ▀▀ ▀  ▀  ▀  ▀  ▀ ▀▀ 
+                          │     ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀ ▀ ▀▄▀        ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀   ▀    
+                          │   0 ▀ ▀ ▄ ▀ ▄ ▀▄▀ ▀ ▄ ▀ ▄ ▀▄▀ ▀ ▄ ▀ ▄ ▀▄▀ ▀      0 ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄  
+                          │     -9m                                            -29m                                     
+ 3 online · 3 offline · up 400d                               t light · p plain · tab pane · ⏎ detail · ? help · q quit

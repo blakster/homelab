@@ -1,0 +1,64 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab                  │ Machines ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── waiting for tailscale… 
+                          │ ┌ TAILNET ──────────────────────────────────────────────────────────────────────────────────────────┐                ╭ hub ───────────────────────────────────────────────╮ 
+ THIS MAC                 │ │ waiting for tailscale status…                                                                     │                │ sampling…                                          │ 
+ sampling…                │ │                                                                                                   │                │                                                    │ 
+                          │ │                                                                                                   │                │                                                    │ 
+ TAILNET              0/0 │ │                                                                                                   │                │                                                    │ 
+                          │ │                                                                                                   │                │                                                    │ 
+ SERVICES             0/3 │ │                                                                                                   │                │                                                    │ 
+ ● OrbStack Doc… checking │ │                                                                                                   │                │                                                    │ 
+ ● Pulse Postgr… checking │ │                                                                                                   │                │                                                    │ 
+ ● Pulse         checking │ │                                                                                                   │                │                                                    │ 
+ ● Air Health         off │ │                                                                                                   │                │                                                    │ 
+                          │ │                                                                                                   │                │                                                    │ 
+                          │ └───────────────────────────────────────────────────────────────────────────────────────────────────┘                ╰────────────────────────────────────────────────────╯ 
+                          │                                                                                                                                                                             
+                          │ Services ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 0 up · 1 off 
+                          │ ● OrbStack Docker              checking                    waiting for first probe                                                                                          
+                          │ ● Pulse Postgres               checking                    waiting for first probe                                                                                          
+                          │ ● Pulse                        checking                    waiting for first probe                                                                                          
+                          │ ● Air Health                   off                         disabled in config                                                                                               
+                          │                                                                                                                                                                             
+                          │ History ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── last 1 min 
+                          │ collecting…                                                                           latency: waiting for pings…                                                           
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+                          │                                                                                                                                                                             
+ 0 online · 0 offline                                                                                                                         t light · p plain · tab pane · ⏎ detail · ? help · q quit

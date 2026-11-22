@@ -1,0 +1,28 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  …                                                                  
+ ╭ hub ───────────────────────────────────────────────────────────────────────╮ 
+ │ sampling…                                                                  │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ │                                                                            │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+ Tailnet ─────────────────────────────────────────────── waiting for tailscale… 
+ waiting for tailscale status…                                                  
+                                                                                
+ Services ──────────────────────────────────────────────────────── 0 up · 1 off 
+ ● OrbStack Docker     checking                    waiting for first probe      
+ ● Pulse Postgres      checking                    waiting for first probe      
+ ● Pulse               checking                    waiting for first probe      
+ ● Air Health          off                         disabled in config           
+                                                                                
+                                                                                
+                                                                                
+ 0 online · 0 offline t light · p plain · tab pane · ⏎ detail · ? help · q quit

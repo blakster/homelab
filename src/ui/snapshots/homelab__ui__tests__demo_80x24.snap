@@ -1,0 +1,28 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  Vansh’s MacBook Air (5)                                            
+ ╭ hub ───────────────────────────────────────────────────────────────────────╮ 
+ │ ▀▀▀▀▀▀▀▀  Vansh’s MacBook Air (5)                                          │ 
+ │ ▀▀▀▀▀▀▀▀  Apple M1 · 8 cores · 16 GB                                       │ 
+ │ ▀▀▀▀▀▀▀▀  up 2d 4h · load 3.61 3.44 3.41                                   │ 
+ │ ▀▀▀▀▀▀▀▀  memory pressure normal                                           │ 
+ │                                                                            │ 
+ │  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▄▄                          ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │ 
+ │ ▀▀▄ ▄ ▄ ▄ ▀ ▀ ▀ ▄ ▀ ▀ ▄ ▀ ▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ ▀ ▄ ▀▀▀ ▀  │ 
+ │ CPU  ▀▀▀▀▀▀▀▀▀  ▄▀  ▄▀  ▄▀  ▄▀   31%  MEM  ▀▄▀▄▀▀▀▄▀▀▀▀▀▀▀▀▀▀ ▄▀  ▄▀   70% │ 
+ │ DISK ▀▄▀▄▀▄▀▄▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▄▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀   54% 124 of 228 GB │ 
+ ╰────────────────────────────────────────────────────────────────────────────╯ 
+ Tailnet ──────────────────────────────────────────────────────── 3 of 5 online 
+ ▀▀▀▀ vanshs-macbook-air-5-rex                                            11 ms 
+ ▀▀▀▀ macOS · direct                                                            
+ ▀▀▀▀ vansh-box-1                                                        182 ms 
+ ▀▀▀▀ linux · via DERP bom                                                      
+                                                                      1–2 of 4  
+ Services ──────────────────────────────────────────────────────── 3 up · 1 off 
+ ● OrbStack Docker     up          4 ms for 2d                                  
+ ● Pulse Postgres      up         38 ms for 2d                                  
+ ● Pulse               up         41 ms for 12m    https://vanshs-macbook-air-… 
+ ● Air Health          off                         disabled in config           
+ 2 online · 2 offline · up 2d 4h          tab pane · ⏎ detail · ? help · q quit

@@ -1,0 +1,34 @@
+---
+source: src/ui/tests.rs
+expression: text
+---
+ homelab  ·  株式会社サーバー’s Mac Studio — bui… 
+ ▲ OrbStack Docker down · error sending request … 
+ ╭ hub ─────────────────────────────────────────╮ 
+ │ 株式会社サーバー’s Mac Studio — build farm … │ 
+ │ Apple M4 Ultra with an unusually long brand… │ 
+ │ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ │ 
+ │ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀ ▀  │ 
+ │ CPU  ▀▄▀▄▀▀▀▀▀▀▀ 100%  MEM  ▀▄▀▄▀▀▀▀▀▀▀ 100% │ 
+ │ DISK ▀  ▄▀  ▄▀  ▄▀  ▄▀  ▄▀   0% no disk data │ 
+ ╰──────────────────────────────────────────────╯ 
+ Tailnet ────────────────────────── 4 of 7 online 
+ ▀▀▀▀ a-really-long-hostname-that-hits-t… 1999 ms 
+ ▀▀▀▀ linux · via DERP fra-extra                  
+ ▀▀▀▀ 0                                      0 ms 
+ ▀▀▀▀ ios · direct                                
+ ▀▀▀▀ Ünïcødé 🚀 phone                       – ms 
+ ▀▀▀▀ android · online                            
+ ▀▀▀▀ never-seen                          offline 
+ ▀▀▀▀ windows · never seen                        
+ ▀▀▀▀ ancient                             offline 
+ ▀▀▀▀ linux · last seen 900d ago                  
+                                        1–5 of 6  
+ Services ────────────────────────── 2 up · 1 off 
+ ● OrbStack Dock… down             error sending… 
+ ● A service nam… blocked          blocked by Or… 
+ ● z              up          0 ms                
+ ● Slow           up       2999 ms                
+ ● Never probed   checking         waiting for f… 
+ ● Disabled       off              disabled in c… 
+ 3 online · 3 offline · up 400d   ? help · q quit
