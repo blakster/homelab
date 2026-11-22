@@ -20,11 +20,7 @@ pub async fn run(mut snapshots: watch::Receiver<Arc<Snapshot>>) -> Result<()> {
     res
 }
 
-async fn event_loop(
-    terminal: &mut DefaultTerminal,
-    snapshots: &mut watch::Receiver<Arc<Snapshot>>,
-    mut ui: UiState,
-) -> Result<()> {
+async fn event_loop(terminal: &mut DefaultTerminal, snapshots: &mut watch::Receiver<Arc<Snapshot>>, mut ui: UiState) -> Result<()> {
     let mut events = EventStream::new();
     loop {
         let snap = snapshots.borrow_and_update().clone();

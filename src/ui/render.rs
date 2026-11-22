@@ -148,10 +148,7 @@ fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Pa
     let cpu: Vec<f64> = snap.history.cpu.iter().map(|v| *v as f64).collect();
     let mem: Vec<f64> = snap.history.mem.iter().map(|v| *v as f64).collect();
     if cpu.len() >= 2 && p.truecolor {
-        let series = [
-            Series::new("cpu %", SIGNAL_TONE, cpu),
-            Series::new("mem %", Tone::Grey, mem),
-        ];
+        let series = [Series::new("cpu %", SIGNAL_TONE, cpu), Series::new("mem %", Tone::Grey, mem)];
         let labels = sparse_labels(series[0].values.len(), 2);
         let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
         render_braille_chart(buf, left, &series, &labels, p, true, true);
@@ -265,11 +262,7 @@ fn render_braille_chart(
     if soft_fill_first && !series.is_empty() {
         let s0 = &series[0];
         for x in 0..pw {
-            let f = if n > 1 {
-                x as f32 / (pw - 1) as f32 * (n - 1) as f32
-            } else {
-                0.0
-            };
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
             let v = interpolate(&s0.values, f);
             let top = scale.y(v, ph);
             let span = (ph - 1) as f32 - top;
@@ -293,11 +286,7 @@ fn render_braille_chart(
         };
         let mut prev: Option<i32> = None;
         for x in 0..pw {
-            let f = if n > 1 {
-                x as f32 / (pw - 1) as f32 * (n - 1) as f32
-            } else {
-                0.0
-            };
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
             let v = interpolate(&s.values, f);
             let ty = scale.y(v, ph).round() as i32;
             let from = prev.unwrap_or(ty);
@@ -312,7 +301,8 @@ fn render_braille_chart(
 
     for &v in ticks {
         let text = format_value(v);
-        let row = (scale.y(v, ph) / 4.0).round() as u16;
+        let py = scale.y(v, ph).round().clamp(0.0, (ph - 1) as f32) as u16;
+        let row = py / 4;
         if row < plot.height {
             let tx = area.x + axis_w.saturating_sub(text.len() as u16 + 1);
             buf.set_string(tx, plot.y + row, text, p.text(p.mute));
@@ -338,12 +328,7 @@ fn render_braille_chart(
 /// Paint a `2×4` subpixel `PixelGrid` into Braille cells (`U+2800..U+28FF`),
 /// preserving `p.ground` so transparent terminal themes show through cleanly.
 fn paint_braille(grid: &PixelGrid, area: Rect, buf: &mut Buffer, p: &Palette) {
-    const BITS: [[u8; 2]; 4] = [
-        [0x01, 0x08],
-        [0x02, 0x10],
-        [0x04, 0x20],
-        [0x40, 0x80],
-    ];
+    const BITS: [[u8; 2]; 4] = [[0x01, 0x08], [0x02, 0x10], [0x04, 0x20], [0x40, 0x80]];
     let bg = p.dither.background;
     for row in 0..area.height as usize {
         for col in 0..area.width as usize {
@@ -792,11 +777,7 @@ fn spark(buf: &mut Buffer, r: Rect, vals: &[f64], max: Option<f64>, tone: Tone, 
         let stroke = tone.shade(if p.light { 0.42 } else { 0.72 });
         let mut prev: Option<i32> = None;
         for x in 0..pw {
-            let f = if n > 1 {
-                x as f32 / (pw - 1) as f32 * (n - 1) as f32
-            } else {
-                0.0
-            };
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
             let v = interpolate(tail, f);
             let frac = (v / hi.max(1e-9)).clamp(0.0, 1.0) as f32;
             let top = (1.0 - frac) * (ph - 1) as f32;

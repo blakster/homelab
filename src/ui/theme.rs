@@ -206,11 +206,7 @@ pub fn detect_terminal() -> TerminalEnv {
     );
     if let Some(rgb) = query_osc11() {
         let lum = 0.2126 * rgb.0 as f32 + 0.7152 * rgb.1 as f32 + 0.0722 * rgb.2 as f32;
-        let bg = if lum >= 128.0 {
-            TerminalBg::Light
-        } else {
-            TerminalBg::Dark
-        };
+        let bg = if lum >= 128.0 { TerminalBg::Light } else { TerminalBg::Dark };
         return TerminalEnv {
             bg,
             bg_rgb: Some(rgb),
@@ -221,11 +217,7 @@ pub fn detect_terminal() -> TerminalEnv {
         .ok()
         .and_then(|v| parse_colorfgbg(&v))
         .unwrap_or(TerminalBg::Dark);
-    TerminalEnv {
-        bg,
-        bg_rgb: None,
-        plain,
-    }
+    TerminalEnv { bg, bg_rgb: None, plain }
 }
 
 pub fn detect_plain_env(no_color: Option<&str>, colorterm: Option<&str>, term: Option<&str>) -> bool {
