@@ -1,0 +1,12 @@
+{
+  "Version": "1.104.7",
+  "BackendState": "Running",
+  "CurrentTailnet": { "Name": "blakster.github", "MagicDNSSuffix": "tail1234.ts.net" },
+  "Self": { "ID": "n-self", "HostName": "Vansh’s MacBook Air (5)", "DNSName": "vanshs-macbook-air-5.tail1234.ts.net.", "OS": "macOS", "Online": true, "LastSeen": "0001-01-01T00:00:00Z" },
+  "Peer": {
+    "nodekey:redacted-1": { "ID": "n-box", "HostName": "vansh-box", "DNSName": "vansh-box.tail1234.ts.net.", "OS": "linux", "Online": false, "LastSeen": "2026-10-14T02:23:33.1Z" },
+    "nodekey:redacted-2": { "ID": "n-rex", "HostName": "vanshs-macbook-air-5-rex", "DNSName": "vanshs-macbook-air-5-rex.tail1234.ts.net.", "OS": "macOS", "Online": true, "LastSeen": "0001-01-01T00:00:00Z" },
+    "nodekey:redacted-3": { "ID": "n-phone", "HostName": "Nothing Phone (1)", "DNSName": "nothing-phone-1.tail1234.ts.net.", "OS": "android", "Online": false, "LastSeen": "2026-11-14T06:09:38.1Z" },
+    "nodekey:redacted-4": { "ID": "n-never", "HostName": "never-seen", "DNSName": "never-seen.tail1234.ts.net.", "OS": "linux", "Online": false, "LastSeen": "0001-01-01T00:00:00Z" }
+  }
+}
