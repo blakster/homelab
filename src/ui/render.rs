@@ -5,10 +5,10 @@
 //! only for structure, one accent (`signal`) for data, status colours only for
 //! status, 1-cell padding, fixed-width numbers.
 
+use dither_ratatui::dither_core::chart::{format_value, interpolate};
 use dither_ratatui::dither_core::{self, Cartesian, PixelGrid};
 use dither_ratatui::prelude::*;
 use dither_ratatui::raster::paint;
-use dither_ratatui::{Chart, Meter};
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
 use ratatui::style::{Color, Modifier, Style};
@@ -19,7 +19,7 @@ use unicode_width::UnicodeWidthStr;
 use crate::model::*;
 use crate::ui::format::{ago, dur, fit, gb, latency, pad, pct};
 use crate::ui::state::{Overlay, Pane, UiState};
-use crate::ui::theme::{FAULT_TONE, Mode, Palette, SIGNAL_TONE};
+use crate::ui::theme::{Palette, SIGNAL_TONE};
 
 pub const MIN_W: u16 = 30;
 pub const MIN_H: u16 = 8;
@@ -30,7 +30,7 @@ const HUB_H: u16 = 13;
 const HISTORY_MIN: u16 = 9;
 
 pub fn render(area: Rect, buf: &mut Buffer, snap: &Snapshot, ui: &UiState) {
-    let p = Palette::new(ui.mode, ui.plain);
+    let p = Palette::with_terminal_bg(ui.mode, ui.plain, ui.terminal_bg_rgb);
     if area.is_empty() {
         return;
     }
@@ -148,14 +148,10 @@ fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Pa
     let cpu: Vec<f64> = snap.history.cpu.iter().map(|v| *v as f64).collect();
     let mem: Vec<f64> = snap.history.mem.iter().map(|v| *v as f64).collect();
     if cpu.len() >= 2 && p.truecolor {
-        let series = [
-            Series::new("cpu %", SIGNAL_TONE, cpu),
-            Series::new("mem %", Tone::Grey, mem).fill(Fill::Hatched),
-        ];
+        let series = [Series::new("cpu %", SIGNAL_TONE, cpu), Series::new("mem %", Tone::Grey, mem)];
         let labels = sparse_labels(series[0].values.len(), 2);
         let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
-        Chart::area(&series).labels(&labels).theme(p.dither).render(left, buf);
-        ink_legend(buf, left, p);
+        render_braille_chart(buf, left, &series, &labels, p, true, true);
     } else {
         spark(buf, left, &cpu, Some(100.0), SIGNAL_TONE, p);
     }
@@ -191,23 +187,176 @@ fn history(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], p: &Pa
             .collect();
         let labels = sparse_labels(n, 30);
         let labels: Vec<&str> = labels.iter().map(String::as_str).collect();
-        Chart::line(&series).labels(&labels).theme(p.dither).render(right, buf);
-        ink_legend(buf, right, p);
+        render_braille_chart(buf, right, &series, &labels, p, true, false);
     } else {
         spark(buf, right, &lat[0].1, None, SIGNAL_TONE, p);
     }
 }
 
-/// dither-ratatui's chart legend ignores the chart theme (always dark ink), so
-/// re-ink the legend's label text from our palette. Swatches keep their tone.
-fn ink_legend(buf: &mut Buffer, r: Rect, p: &Palette) {
-    if r.height <= 3 {
+/// Braille (`2×4` dots/cell) chart over `dither-core`: crisp strokes for every
+/// series, optional low-density ordered-dither fill under only the primary
+/// series, no background dot clouds or gridlines.
+fn render_braille_chart(
+    buf: &mut Buffer,
+    area: Rect,
+    series: &[Series],
+    labels: &[&str],
+    p: &Palette,
+    show_legend: bool,
+    soft_fill_first: bool,
+) {
+    if area.width < 6 || area.height < 4 {
         return;
     }
-    for x in r.left()..r.right() {
-        let cell = &mut buf[(x, r.y)];
-        if cell.symbol().chars().all(|c| c.is_alphanumeric() || " %-_.()…".contains(c)) && cell.symbol() != " " {
-            cell.set_fg(p.ink3);
+    let mut plot = area;
+    if show_legend && plot.height > 3 {
+        let mut x = plot.x;
+        let total: u16 = series
+            .iter()
+            .filter(|s| !s.hidden)
+            .map(|s| 3 + s.label.width() as u16 + 2)
+            .sum::<u16>()
+            .saturating_sub(2);
+        if total < plot.width {
+            x += (plot.width - total) / 2;
+        }
+        for s in series.iter().filter(|s| !s.hidden) {
+            let swatch = s.tone.shade(if p.light { 0.45 } else { 0.68 });
+            let c = Color::Rgb(swatch.r, swatch.g, swatch.b);
+            if x + 2 <= plot.right() {
+                buf.set_string(x, plot.y, "── ", p.text(c));
+                x += 3;
+            }
+            let rem = plot.right().saturating_sub(x) as usize;
+            if rem > 0 {
+                buf.set_stringn(x, plot.y, &s.label, rem, p.text(p.ink3));
+                x = x.saturating_add(s.label.width() as u16 + 2);
+            }
+        }
+        plot.y += 1;
+        plot.height -= 1;
+    }
+
+    let mut core = Cartesian::new(CartesianKind::Line, series);
+    core.grid_lines = false;
+    let scale = core.scale();
+    let ticks = &scale.ticks;
+    let axis_w = (ticks.iter().map(|v| format_value(*v).len()).max().unwrap_or(0) as u16 + 1).min(plot.width / 2);
+    let label_h = u16::from(!labels.is_empty() && plot.height > 2);
+    plot.x += axis_w;
+    plot.width = plot.width.saturating_sub(axis_w);
+    plot.height = plot.height.saturating_sub(label_h);
+    if plot.width == 0 || plot.height == 0 {
+        return;
+    }
+
+    let (pw, ph) = (plot.width as usize * 2, plot.height as usize * 4);
+    let mut g = PixelGrid::new(pw, ph);
+    let n = series.iter().map(|s| s.values.len()).max().unwrap_or(0);
+
+    let baseline = if p.light { Rgba::hex(0xd4d4dc) } else { Rgba::hex(0x2a2a31) };
+    for x in (0..pw as i32).step_by(2) {
+        g.set(x, ph as i32 - 1, baseline);
+    }
+
+    if soft_fill_first && !series.is_empty() {
+        let s0 = &series[0];
+        for x in 0..pw {
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
+            let v = interpolate(&s0.values, f);
+            let top = scale.y(v, ph);
+            let span = (ph - 1) as f32 - top;
+            for y in (top.ceil() as i32 + 1)..(ph as i32 - 1) {
+                let t = 1.0 - (y as f32 - top) / span.max(1.0);
+                let density = if p.light { 0.08 + 0.30 * t } else { 0.08 + 0.36 * t };
+                if Fill::Gradient.covers(x as i32, y, density) {
+                    let shade = if p.light { 0.76 - 0.14 * t } else { 0.22 + 0.16 * t };
+                    g.set(x as i32, y, s0.tone.shade(shade));
+                }
+            }
+        }
+    }
+
+    for (si, s) in series.iter().filter(|s| !s.hidden).enumerate() {
+        let stroke = match (p.light, si) {
+            (false, 0) => s.tone.shade(0.72),
+            (false, _) => s.tone.shade(0.62),
+            (true, 0) => s.tone.shade(0.42),
+            (true, _) => s.tone.shade(0.52),
+        };
+        let mut prev: Option<i32> = None;
+        for x in 0..pw {
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
+            let v = interpolate(&s.values, f);
+            let ty = scale.y(v, ph).round() as i32;
+            let from = prev.unwrap_or(ty);
+            for y in from.min(ty)..=from.max(ty) {
+                g.set(x as i32, y, stroke);
+            }
+            prev = Some(ty);
+        }
+    }
+
+    paint_braille(&g, plot, buf, p);
+
+    for &v in ticks {
+        let text = format_value(v);
+        let py = scale.y(v, ph).round().clamp(0.0, (ph - 1) as f32) as u16;
+        let row = py / 4;
+        if row < plot.height {
+            let tx = area.x + axis_w.saturating_sub(text.len() as u16 + 1);
+            buf.set_string(tx, plot.y + row, text, p.text(p.mute));
+        }
+    }
+    if label_h > 0 {
+        let ly = plot.bottom();
+        let count = labels.len();
+        for (i, label) in labels.iter().enumerate() {
+            if label.is_empty() {
+                continue;
+            }
+            let frac = if count > 1 { i as f32 / (count - 1) as f32 } else { 0.5 };
+            let col = (frac * plot.width.saturating_sub(1) as f32).round() as u16;
+            let start = (plot.x + col)
+                .saturating_sub(label.len() as u16 / 2)
+                .clamp(plot.x, plot.right().saturating_sub(label.len() as u16));
+            buf.set_stringn(start, ly, label, plot.right().saturating_sub(start) as usize, p.text(p.mute));
+        }
+    }
+}
+
+/// Paint a `2×4` subpixel `PixelGrid` into Braille cells (`U+2800..U+28FF`),
+/// preserving `p.ground` so transparent terminal themes show through cleanly.
+fn paint_braille(grid: &PixelGrid, area: Rect, buf: &mut Buffer, p: &Palette) {
+    const BITS: [[u8; 2]; 4] = [[0x01, 0x08], [0x02, 0x10], [0x04, 0x20], [0x40, 0x80]];
+    let bg = p.dither.background;
+    for row in 0..area.height as usize {
+        for col in 0..area.width as usize {
+            let mut mask = 0u8;
+            let (mut r_sum, mut g_sum, mut b_sum, mut count) = (0u32, 0u32, 0u32, 0u32);
+            for (dy, bit_row) in BITS.iter().enumerate() {
+                for (dx, &bit) in bit_row.iter().enumerate() {
+                    if let Some(px) = grid.get(col * 2 + dx, row * 4 + dy)
+                        && px.a > 24
+                    {
+                        mask |= bit;
+                        let blended = if px.a == 255 { px } else { px.over(bg) };
+                        r_sum += blended.r as u32;
+                        g_sum += blended.g as u32;
+                        b_sum += blended.b as u32;
+                        count += 1;
+                    }
+                }
+            }
+            let cell = &mut buf[(area.x + col as u16, area.y + row as u16)];
+            cell.set_bg(p.ground);
+            if let Some(r) = r_sum.checked_div(count) {
+                let ch = char::from_u32(0x2800 + mask as u32).unwrap_or(' ');
+                let fg = Color::Rgb(r as u8, (g_sum / count) as u8, (b_sum / count) as u8);
+                cell.set_char(ch).set_fg(fg);
+            } else {
+                cell.set_char(' ').set_fg(p.ink);
+            }
         }
     }
 }
@@ -341,7 +490,7 @@ fn status_bar(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&Device], ui:
     if let Some(h) = &snap.host {
         left.push_str(&format!(" · up {}", dur(h.uptime_secs as i64 * 1000)));
     }
-    let next_theme = if ui.mode == Mode::Dark { "light" } else { "dark" };
+    let next_theme = ui.mode.next(ui.detected_bg).label();
     let keys = [
         format!("t {next_theme}"),
         if ui.plain { "p dither".into() } else { "p plain".into() },
@@ -506,7 +655,7 @@ fn hub_card(buf: &mut Buffer, r: Rect, snap: &Snapshot, p: &Palette, compact: bo
     let mut y = inner.y;
 
     let text_x = if !compact && inner.height >= 8 && inner.width >= 34 {
-        avatar(buf, Rect::new(inner.x, inner.y, 8, 4), &h.name, p, false);
+        avatar(buf, Rect::new(inner.x, inner.y, 8, 4), &h.name, p);
         inner.x + 10
     } else {
         inner.x
@@ -583,39 +732,77 @@ fn meter_row(buf: &mut Buffer, r: Rect, label: &str, ratio: f32, p: &Palette) {
     buf.set_string(r.x, r.y, format!("{label:<4}"), p.text(p.mute));
     let v = pct(ratio * 100.0);
     let bar = Rect::new(r.x + 5, r.y, r.width - 5 - 5, 1);
-    let tone = if ratio >= 0.9 { FAULT_TONE } else { SIGNAL_TONE };
+    let fill_color = if ratio >= 0.9 { p.fault } else { p.signal };
     if p.truecolor {
-        let mut m = Meter::new(ratio, tone);
-        m.theme = p.dither;
-        m.render(bar, buf);
+        // Solid 1/8th-block bar + faint diagonal-hatched empty track.
+        const PARTIALS: [&str; 8] = ["", "▏", "▎", "▍", "▌", "▋", "▊", "▉"];
+        let total_eighths = (ratio * bar.width as f32 * 8.0).round() as usize;
+        let full = (total_eighths / 8).min(bar.width as usize);
+        let rem = if full < bar.width as usize { total_eighths % 8 } else { 0 };
+        let empty = (bar.width as usize).saturating_sub(full + usize::from(rem > 0));
+        let mut x = bar.x;
+        if full > 0 {
+            buf.set_string(x, bar.y, "█".repeat(full), p.text(fill_color));
+            x += full as u16;
+        }
+        if rem > 0 {
+            buf.set_string(x, bar.y, PARTIALS[rem], p.text(fill_color));
+            x += 1;
+        }
+        if empty > 0 {
+            buf.set_string(x, bar.y, "╱".repeat(empty), p.text(p.wire));
+        }
     } else {
         let filled = (ratio * bar.width as f32).round() as usize;
         let s = format!("{}{}", "█".repeat(filled), "░".repeat(bar.width as usize - filled));
-        buf.set_string(bar.x, bar.y, s, p.text(if ratio >= 0.9 { p.fault } else { p.signal }));
+        buf.set_string(bar.x, bar.y, s, p.text(fill_color));
     }
     let c = if ratio >= 0.9 { p.fault } else { p.ink2 };
     buf.set_string(r.right() - 4, r.y, v, p.text(c));
 }
 
-/// A chrome-free area spark. With `max`, the scale is fixed (CPU 0–100), so a
-/// quiet machine looks quiet instead of auto-scaling noise into mountains.
+/// A chrome-free Braille sparkline. With `max`, the scale is fixed (CPU 0–100),
+/// so a quiet machine looks quiet instead of auto-scaling noise into mountains.
 fn spark(buf: &mut Buffer, r: Rect, vals: &[f64], max: Option<f64>, tone: Tone, p: &Palette) {
     if vals.len() < 2 || r.width == 0 || r.height == 0 {
         buf.set_stringn(r.x, r.y, "collecting…", r.width as usize, p.text(p.mute));
         return;
     }
-    let tail = &vals[vals.len().saturating_sub(r.width as usize)..];
+    let tail = &vals[vals.len().saturating_sub(r.width as usize * 2)..];
     if p.truecolor {
-        let series = [Series::new("", tone, tail.to_vec())];
-        let mut c = Cartesian::new(CartesianKind::Area, &series);
-        c.grid_lines = false;
-        c.y_max = max.or_else(|| Some(tail.iter().copied().fold(1e-9, f64::max) * 1.1));
-        let g = c.render(r.width as usize, r.height as usize * 2);
-        paint(&g, r, buf, p.dither.background);
+        let (pw, ph) = (r.width as usize * 2, r.height as usize * 4);
+        let mut g = PixelGrid::new(pw, ph);
+        let hi = max.unwrap_or_else(|| tail.iter().copied().fold(1e-9, f64::max) * 1.15);
+        let n = tail.len();
+        let stroke = tone.shade(if p.light { 0.42 } else { 0.72 });
+        let mut prev: Option<i32> = None;
+        for x in 0..pw {
+            let f = if n > 1 { x as f32 / (pw - 1) as f32 * (n - 1) as f32 } else { 0.0 };
+            let v = interpolate(tail, f);
+            let frac = (v / hi.max(1e-9)).clamp(0.0, 1.0) as f32;
+            let top = (1.0 - frac) * (ph - 1) as f32;
+            let span = (ph - 1) as f32 - top;
+            for y in (top.ceil() as i32 + 1)..(ph as i32) {
+                let t = 1.0 - (y as f32 - top) / span.max(1.0);
+                let density = if p.light { 0.08 + 0.30 * t } else { 0.08 + 0.36 * t };
+                if Fill::Gradient.covers(x as i32, y, density) {
+                    let shade = if p.light { 0.76 - 0.14 * t } else { 0.22 + 0.16 * t };
+                    g.set(x as i32, y, tone.shade(shade));
+                }
+            }
+            let ty = top.round() as i32;
+            let from = prev.unwrap_or(ty);
+            for y in from.min(ty)..=from.max(ty) {
+                g.set(x as i32, y, stroke);
+            }
+            prev = Some(ty);
+        }
+        paint_braille(&g, r, buf, p);
     } else {
         const BARS: [&str; 8] = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"];
-        let hi = max.unwrap_or_else(|| tail.iter().copied().fold(1e-9, f64::max));
-        let s: String = tail
+        let plain_tail = &vals[vals.len().saturating_sub(r.width as usize)..];
+        let hi = max.unwrap_or_else(|| plain_tail.iter().copied().fold(1e-9, f64::max));
+        let s: String = plain_tail
             .iter()
             .map(|v| BARS[((v / hi).clamp(0.0, 1.0) * 7.0).round() as usize])
             .collect();
@@ -623,26 +810,15 @@ fn spark(buf: &mut Buffer, r: Rect, vals: &[f64], max: Option<f64>, tone: Tone, 
     }
 }
 
-/// Deterministic identicon from the hostname: Dither Kit's 8×8 avatar, either
-/// full (8×4 cells) or sampled to 4×2 cells for dense rows.
-fn avatar(buf: &mut Buffer, r: Rect, name: &str, p: &Palette, mini: bool) {
+/// Deterministic identicon from the hostname: Dither Kit's 8×8 avatar on the
+/// hub card (8×4 half-block cells).
+fn avatar(buf: &mut Buffer, r: Rect, name: &str, p: &Palette) {
     if !p.truecolor {
-        buf.set_string(r.x, r.y, if mini { "◆" } else { "◆◆" }, p.text(p.signal));
+        buf.set_string(r.x, r.y, "◆◆", p.text(p.signal));
         return;
     }
-    let src = dither_core::avatar(name, None);
-    let grid = if mini {
-        let mut g = PixelGrid::new(4, 4);
-        for y in 0..4 {
-            for x in 0..4 {
-                g.plot(x as i32, y as i32, src.get(x * 2, y * 2));
-            }
-        }
-        g
-    } else {
-        src
-    };
-    paint(&grid, r, buf, p.dither.background);
+    let src = dither_core::avatar(name, Some(268.0));
+    paint(&src, r, buf, p.dither.background);
 }
 
 // ───────────────────────────── peers ─────────────────────────────
@@ -712,9 +888,17 @@ fn peer_list<'a>(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&'a Device
         if selected {
             buf.set_style(Rect::new(r.x, y, r.width, 2.min(r.bottom() - y)), Style::new().bg(p.raised));
         }
-        avatar(buf, Rect::new(r.x, y, 4, 2), &d.name, p, true);
-        let x = r.x + 5;
-        let w = r.width.saturating_sub(5) as usize;
+        let bg = |s: Style| if selected { s.bg(p.raised) } else { s };
+        let (dot, dot_c) = match &d.presence {
+            Presence::Online {
+                latency: Latency::Relay { .. },
+            } => ("●", p.relay),
+            Presence::Online { .. } => ("●", p.live),
+            Presence::Offline { .. } => ("○", p.asleep),
+        };
+        buf.set_string(r.x, y, dot, bg(p.text(dot_c)));
+        let x = r.x + 2;
+        let w = r.width.saturating_sub(2) as usize;
         let online = matches!(d.presence, Presence::Online { .. });
         let (right, right_c, sub) = match &d.presence {
             Presence::Online { latency: l } => {
@@ -744,7 +928,6 @@ fn peer_list<'a>(buf: &mut Buffer, r: Rect, snap: &Snapshot, peers: &[&'a Device
         if selected {
             name_style = name_style.add_modifier(Modifier::BOLD).bg(p.raised);
         }
-        let bg = |s: Style| if selected { s.bg(p.raised) } else { s };
         buf.set_stringn(x, y, pad(&d.name, nw), nw, name_style);
         if w > rw {
             buf.set_string(x + (w - rw) as u16, y, &right, bg(p.text(right_c)));
@@ -936,7 +1119,7 @@ fn help(buf: &mut Buffer, area: Rect, p: &Palette) {
         ("↑ ↓  j k", "move"),
         ("⏎  l", "open detail"),
         ("esc  h", "close"),
-        ("t", "dark / light"),
+        ("t", "terminal / dark / light"),
         ("p", "plain mode (no truecolor)"),
         ("g  G", "top / bottom"),
         ("q", "quit"),
@@ -1005,11 +1188,7 @@ fn detail(buf: &mut Buffer, area: Rect, snap: &Snapshot, peers: &[&Device], ui: 
                             .collect();
                         let labels: Vec<&str> = labels_owned.iter().map(String::as_str).collect();
                         let series = [Series::new("latency ms", SIGNAL_TONE, vals)];
-                        Chart::line(&series)
-                            .labels(&labels)
-                            .legend(false)
-                            .theme(p.dither)
-                            .render(chart_r, buf);
+                        render_braille_chart(buf, chart_r, &series, &labels, p, false, true);
                     } else {
                         spark(buf, chart_r, &vals, None, SIGNAL_TONE, p);
                     }

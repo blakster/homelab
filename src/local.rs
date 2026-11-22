@@ -13,14 +13,14 @@ use crate::model::Snapshot;
 use crate::ui::{self, UiState, state};
 
 pub async fn run(mut snapshots: watch::Receiver<Arc<Snapshot>>) -> Result<()> {
+    let ui = UiState::from_terminal();
     let mut terminal = ratatui::init();
-    let res = event_loop(&mut terminal, &mut snapshots).await;
+    let res = event_loop(&mut terminal, &mut snapshots, ui).await;
     ratatui::restore();
     res
 }
 
-async fn event_loop(terminal: &mut DefaultTerminal, snapshots: &mut watch::Receiver<Arc<Snapshot>>) -> Result<()> {
-    let mut ui = UiState::default();
+async fn event_loop(terminal: &mut DefaultTerminal, snapshots: &mut watch::Receiver<Arc<Snapshot>>, mut ui: UiState) -> Result<()> {
     let mut events = EventStream::new();
     loop {
         let snap = snapshots.borrow_and_update().clone();
